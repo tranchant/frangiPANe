@@ -16,7 +16,3 @@ RUN apt update #\
 
 ENV JUPYTER_ENABLE_LAB=yes
 
-
-#Install for non-specific ONT 
-#RUN apt install -y unzip wget build-essential cmake git-all tar gzip rsync 
-
