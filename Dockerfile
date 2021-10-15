@@ -9,7 +9,7 @@ RUN apt update \
 &&  apt install -y libz-dev software-properties-common apt-utils unzip wget build-essential cmake git-all tar gzip rsync
 
 
-RUN apt install -y python3.9-tk
+RUN apt install -y python3.9-tk python-biopython
 
 # RUN jupyter labextension install @pyviz/jupyterlab_pyviz
 
