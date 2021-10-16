@@ -12,7 +12,7 @@ frangiPANe  was  developed  as  a  modular  and  interactive application  to  si
  * panel
 
  * bwa
- *
+ * ea-utils
 
 
  ### Running frangiPAne
