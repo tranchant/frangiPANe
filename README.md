@@ -7,7 +7,7 @@ frangiPANe  was  developed  as  a  modular  and  interactive application  to  si
  It  is  available  as a   Docker   image   that   contains   (i)   a   jupypter   notebook centralizing code, documentation and interactive visualization of results, (ii) python scripts and (iii) all the software (XXX)needed for each step of the analysis.
 
 
- ### TRequirements
+ ### Requirements
 
  * Docker : https://docs.docker.com/get-docker/
  * Python3 (v3.9.7)
@@ -20,19 +20,19 @@ frangiPANe  was  developed  as  a  modular  and  interactive application  to  si
  * samtools (v1.10) : http://www.htslib.org/
 
 
-# How to use FrangiPANe ?
+### How to use FrangiPANe ?
 
-## from IFB cloud
+#### from IFB cloud
 
-## On our computer
+#### On our computer
 
-### Clone the git repository  
+##### Clone the git repository  
 
 ```
 git clone https://github.com/tranchant/frangiPANe.git
 ```
 
-### Build the docker machine
+##### Build the docker machine
 
 After installing Docker, build the docker machine
 
@@ -40,7 +40,7 @@ After installing Docker, build the docker machine
 docker build -t frangipane .
 ```
 
-### Run FrangiPANe
+##### Run FrangiPANe
 
 ```
 docker run -u $(id -u) -v /local/path/2/DATA:/home/jovyan -p 10001:8888 frangipane:latest
@@ -48,6 +48,12 @@ docker run -u $(id -u) -v /local/path/2/DATA:/home/jovyan -p 10001:8888 frangipa
 
 http://127.0.0.1:10001/lab?token=e943b42cfe64a1e76bb2018f90997043cbf3b7618b442ea5
 
-# Licence
+### Licence
 
- Licencied under CeCill-C (http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html) and GPLv3
+* Licencied under CeCill-C (http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html) and GPLv3
+
+* Intellectual property belongs to IRD/UMR DIADE.
+
+* Written by Clothilde Chenal and Christine Tranchant-Dubreuil
+
+* Copyright 2021
