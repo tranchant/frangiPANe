@@ -110,7 +110,7 @@ def fastq_stats(fastq_file, stat_dir, logger):
 
     text=f"In progress for {file}..."
     display_alert(text, "secondary")
-    cmd = f'/home/christine/Téléchargements/ExpressionAnalysis-ea-utils-bd148d4/clipper/fastq-stats -D {fastq_file} > {stat_file}'
+    cmd = f'fastq-stats -D {fastq_file} > {stat_file}'
     process = subprocess.run(cmd, shell=True, capture_output=True, text=True)
     logger.info(f"\t\t\tfastq-stats cmd : {cmd}")
 
