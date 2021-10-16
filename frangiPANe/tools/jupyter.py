@@ -129,87 +129,6 @@ def display_alert(text, at):
 
 def box_config():
 #CD : PUT URL CODE ORIGINE
-    class SelectDirButton(widgets.Button):
-        """A file widget that leverages tkinter.filedialog."""
-
-        def __init__(self) -> object:
-            super(SelectDirButton, self).__init__()
-            # Add the selected_files trait
-            self.add_traits(dirs=traitlets.traitlets.List())
-            # Create the button.
-            self.description = "Select dir"
-            self.icon = "square-o"
-            self.style.button_color = "#E7E3D5"
-            self.layout=Layout(width='40%', height='40px')
-            # Set on click behavior.
-            self.on_click(self.select_dir)
-
-        @staticmethod
-        def select_dir(b):
-            """Generate instance of tkinter.filedialog.
-
-            Parameters
-            ----------
-            b : obj:
-                An instance of ipywidgets.widgets.Button
-            """
-            with outd:
-                try:
-                    # Create Tk root
-                    root = Tk()
-                    # Hide the main window
-                    root.withdraw()
-                    # Raise the root to the top of all windows.
-                    root.call('wm', 'attributes', '.', '-topmost', True)
-                    # List of selected fileswill be set to b.value
-                    b.dir = filedialog.askdirectory()
-
-                    b.description = os.path.basename(b.dir)
-                    b.icon = "check-square-o"
-                    b.style.button_color = "#9FD89F"
-                except:
-                    pass
-
-    class SelectFilesButton(widgets.Button):
-        """A file widget that leverages tkinter.filedialog."""
-
-        def __init__(self) -> object:
-            super(SelectFilesButton, self).__init__()
-            # Add the selected_files trait
-            self.add_traits(files=traitlets.traitlets.List())
-            # Create the button.
-            self.description = "Select file"
-            self.icon = "square-o"
-            self.style.button_color = "#E7E3D5"
-            self.layout=Layout(width='20%', height='40px')
-            # Set on click behavior.
-            self.on_click(self.select_file)
-
-        @staticmethod
-        def select_file(b):
-            """Generate instance of tkinter.filedialog.
-
-            Parameters
-            ----------
-            b : obj:
-                An instance of ipywidgets.widgets.Button
-            """
-            with out:
-                try:
-                    # Create Tk root
-                    root = Tk()
-                    # Hide the main window
-                    root.withdraw()
-                    # Raise the root to the top of all windows.
-                    root.call('wm', 'attributes', '.', '-topmost', True)
-                    # List of selected fileswill be set to b.value
-                    b.file = filedialog.askopenfilename(multiple=False)
-
-                    b.description = os.path.basename(b.file)
-                    b.icon = "check-square-o"
-                    b.style.button_color = "#9FD89F"
-                except:
-                    pass
 
     html1_value = widgets.HTML(
         value="<b><center><FONT face = 'WildWest' color='#255E7A'>INPUT & OUTPUT DATA</FONT></center></b>",
@@ -226,31 +145,38 @@ def box_config():
         style=style
     )
 
-    outd = widgets.Output()
-    label_dirw = widgets.Label("Output directory")
-    out_dirw = SelectDirButton()
-    out_dirw.description = "Output dir"
+    out_dirw = widgets.Text(
+        value='/home/jovyan/PUT_OUTPUT_DIRNAME',
+        description='Output Directory:',
+        layout=Layout(width='80%', height='40px'),
+        style=style
+    )
 
-    out = widgets.Output()
-    label_ref = widgets.Label("Genome Reference")
-    ref_fastaw = SelectFilesButton()
-    ref_fastaw.description = "Genome reference"
+    ref_fastaw = widgets.Text(
+    value='/home/jovyan/PUT_GENOME_FILE',
+    description='Genome Reference:',
+    layout=Layout(width='80%', height='40px'),
+    style=style
+    )
 
-    label_fastq = widgets.Label("Fastq directory")
-    fastq_dirw = SelectDirButton()
-    fastq_dirw.description = "Fastq directory"
+    fastq_dirw = widgets.Text(
+    value='/home/jovyan/PUT_FASTQ_DIR',
+    description='fastq directory:',
+    layout=Layout(width='80%', height='40px'),
+    style=style
+    )
 
-    label_group = widgets.Label("Group file")
-    group_filew = SelectFilesButton()
-    group_filew.description = "Group file"
+    group_filew = widgets.Text(
+    value='/home/jovyan/PUT_GROUP_FILE',
+    description='Group File :',
+    layout=Layout(width='80%', height='40px'),
+    style=style
+)
 
-    #index = widgets.Checkbox(
-    #       description='Indexation?')
-
-    top_box = widgets.HBox([label_dirw, outd, out_dirw, label_group, out, group_filew])
-    bottom_box = widgets.HBox([label_fastq,outd, fastq_dirw, label_ref, out, ref_fastaw ])
+    top_box = widgets.HBox([out_dirw, group_filew])
+    bottom_box = widgets.HBox([fastq_dirw, ref_fastaw ])
     #box_data = widgets.VBox([html1_value, project, outd, out_dirw, out, ref_fastaw, group_filew, outd, fastq_dirw])
-    box_data = widgets.VBox([html1_value, project, top_box, bottom_box])
+    box_data = widgets.VBox([html1_value, project, out_dirw, group_filew,fastq_dirw, ref_fastaw ])
 
     ##### CONFIG BOX
     df = pd.read_csv("conf/cluster.conf",names=["tag","val"], sep="=")
