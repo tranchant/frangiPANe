@@ -1,4 +1,4 @@
-<img src="frangiPANe/Images/frangiPANe.png" width=80% align=right>
+<img src="frangiPANe/Images/frangiPANe.png" width=80%>
 
 <br />
 
