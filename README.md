@@ -1,6 +1,6 @@
-<a class="anchor" id="home"><img src="frangiPANe/Images/frangiPANe.png" width=50% align=right></a>
+<img src="frangiPANe/Images/frangiPANe.png" width=80% align=right>
 
-# frangiPANe, an application to create a panreference
+# To create a panreference
 
 frangiPANe  was  developed  as  a  modular  and  interactive application  to  simplify  the  construction  of  a  panreference using  the  map-then-assembly  approach. . It consists in a Jupyter Notebook application that  centralizes  code,documentation and interactive visualizations together
 
