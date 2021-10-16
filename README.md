@@ -6,9 +6,8 @@ frangiPANe  was  developed  as  a  modular  and  interactive application  to  si
 
  It  is  available  as a   Docker   image   that   contains   (i)   a   jupypter   notebook centralizing code, documentation and interactive visualization of results, (ii) python scripts and (iii) all the software (XXX)needed for each step of the analysis.
 
-<img src="frangiPANe/Images/approachMapThenAssembly.jpg" width=80%>
 
- ### Tools required
+ ### TRequirements
 
  * Docker : https://docs.docker.com/get-docker/
  * Python3 (v3.9.7)
@@ -21,8 +20,34 @@ frangiPANe  was  developed  as  a  modular  and  interactive application  to  si
  * samtools (v1.10) : http://www.htslib.org/
 
 
-## Running frangiPAne
+# How to use FrangiPANe ?
 
-## Licence
+## from IFB cloud
+
+## On our computer
+
+### Clone the git repository  
+
+```
+git clone https://github.com/tranchant/frangiPANe.git
+```
+
+### Build the docker machine
+
+After installing Docker, build the docker machine
+
+```
+docker build -t frangipane .
+```
+
+### Run FrangiPANe
+
+```
+docker run -u $(id -u) -v /local/path/2/DATA:/home/jovyan -p 10001:8888 frangipane:latest
+```
+
+http://127.0.0.1:10001/lab?token=e943b42cfe64a1e76bb2018f90997043cbf3b7618b442ea5
+
+# Licence
 
  Licencied under CeCill-C (http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html) and GPLv3
