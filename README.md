@@ -1,8 +1,8 @@
 <img src="frangiPANe/Images/frangiPANe.png" width=60% align=center>
 
-<img src="frangiPANe/Images/frangiPANe_overview.jpg" width=70% align=center>
-
 frangiPANe  was  developed  as  a  modular  and  interactive application  to  simplify  the  construction  of  a  panreference using  the  map-then-assembly  approach. It consists in a Jupyter Notebook application that  centralizes  code,documentation and interactive visualizations together
+
+<img src="frangiPANe/Images/frangiPANe_overview.jpg" width=70% align=center>
 
  It  is  available  as a   Docker   image   that   contains   (i)   a   jupypter   notebook centralizing code, documentation and interactive visualization of results, (ii) python scripts and (iii) all the software (XXX)needed for each step of the analysis.
 
