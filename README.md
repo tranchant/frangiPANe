@@ -6,13 +6,15 @@ frangiPANe  was  developed  as  a  modular  and  interactive application  to  si
 
  ### Tools required
 
- * Docker
-
- * biopython
+ * Docker : https://docs.docker.com/get-docker/
+ * Python3 (v3.9.7)
+ * biopython : https://biopython.org/
  * panel
 
- * bwa
- * ea-utils
+ * abyss : https://github.com/bcgsc/abyss/blob/master/README.md
+ * bwa (v. 0.7.17) : https://github.com/lh3/bwa/blob/master/README.md
+ * ea-utils (fastq-stats, v 1.01) : https://expressionanalysis.github.io/ea-utils/
+ * samtools (v1.10) : http://www.htslib.org/
 
 
  ### Running frangiPAne
