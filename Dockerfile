@@ -33,6 +33,8 @@ RUN mkdir /usr/local/bwa && cd /usr/local/bwa \
 && git clone https://github.com/lh3/bwa.git \
 && cd bwa; make
 
+RUN apt install -y ea-utils
+
 ENV PATH="/usr/local/bwa/bwa:$PATH"
 RUN echo $PATH
 
