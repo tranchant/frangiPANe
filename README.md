@@ -23,4 +23,8 @@ frangiPANe  was  developed  as  a  modular  and  interactive application  to  si
  * samtools (v1.10) : http://www.htslib.org/
 
 
- ### Running frangiPAne
+## Running frangiPAne
+
+## Licence
+
+ Licencied under CeCill-C (http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html) and GPLv3
