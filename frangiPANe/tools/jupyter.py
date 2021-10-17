@@ -127,100 +127,190 @@ def display_alert(text, at):
     display(pn.pane.Alert(text.format(alert_type=at), alert_type=at))
 
 
+# def box_config():
+# #CD : PUT URL CODE ORIGINE
+#
+#     html1_value = widgets.HTML(
+#         value="<b><center><FONT face = 'WildWest' color='#255E7A'>INPUT & OUTPUT DATA</FONT></center></b>",
+#         placeholder='Some HTML',
+#         description='',
+#     )
+#
+#     ##### DATA CONFIG
+#     style = {'description_width': 'initial'}
+#     project = widgets.Text(
+#         value='test',
+#         description='Project name:',
+#         layout=Layout(width='40%', height='40px'),
+#         style=style
+#     )
+#
+#     out_dirw = widgets.Text(
+#         value='/home/jovyan/PUT_OUTPUT_DIRNAME',
+#         description='Output Directory:',
+#         layout=Layout(width='80%', height='40px'),
+#         style=style
+#     )
+#
+#     ref_fastaw = widgets.Text(
+#     value='/home/jovyan/PUT_GENOME_FILE',
+#     description='Genome Reference:',
+#     layout=Layout(width='80%', height='40px'),
+#     style=style
+#     )
+#
+#     fastq_dirw = widgets.Text(
+#     value='/home/jovyan/PUT_FASTQ_DIR',
+#     description='fastq directory:',
+#     layout=Layout(width='80%', height='40px'),
+#     style=style
+#     )
+#
+#     group_filew = widgets.Text(
+#     value='/home/jovyan/PUT_GROUP_FILE',
+#     description='Group File :',
+#     layout=Layout(width='80%', height='40px'),
+#     style=style
+# )
+#
+#     top_box = widgets.HBox([out_dirw, group_filew])
+#     bottom_box = widgets.HBox([fastq_dirw, ref_fastaw ])
+#     #box_data = widgets.VBox([html1_value, project, outd, out_dirw, out, ref_fastaw, group_filew, outd, fastq_dirw])
+#     box_data = widgets.VBox([html1_value, project, out_dirw, group_filew,fastq_dirw, ref_fastaw ])
+#
+#     ##### CONFIG BOX
+#     df = pd.read_csv("conf/cluster.conf",names=["tag","val"], sep="=")
+#     # widget_display(df)
+#     cpu_max = int(df.iat[0, 1])
+#     partition = df.iat[1, 1].split(",")
+#
+#     cpu = widgets.BoundedIntText(
+#         value=6,
+#         min=1,
+#         max=cpu_max,
+#         step=1,
+#         description='CPUs:',
+#         disabled=False
+#     )
+#
+#     queue = widgets.Select(
+#         options=partition,
+#         description='Slurm partition:',
+#         disabled=False
+#     )
+#
+#     slurm = widgets.Checkbox(
+#            description='Slurm',)
+#
+#     box_cluster = widgets.VBox([cpu, queue, slurm])
+#
+#     #### MAPPING CONFIG
+#     box_mapping = widgets.VBox([cpu])
+#
+#
+#     #### VBOX
+#     # defining a list with the contents of our windows
+#     children = [box_data, box_mapping] # box_cluster,
+#     # initializing a tab
+#     tab = widgets.Tab()
+#     # setting the tab windows
+#     tab.children = children
+#     # changing the title of the first and second window
+#     tab.set_title(0, 'Data')
+#     #tab.set_title(1, 'Cluster')
+#     tab.set_title(1, 'CPU')
+#     display(tab)
+#     return project, out_dirw, ref_fastaw, group_filew, fastq_dirw, cpu #, queue, slurm  #out_dirw,, fastq_dirw, group_filew,
+
 def box_config():
-#CD : PUT URL CODE ORIGINE
 
-    html1_value = widgets.HTML(
-        value="<b><center><FONT face = 'WildWest' color='#255E7A'>INPUT & OUTPUT DATA</FONT></center></b>",
-        placeholder='Some HTML',
-        description='',
-    )
+    project_namew = ""
+    output_dirw = ""
+    fastq_dirw = ""
+    group_filew = ""
+    ref_filew = ""
 
-    ##### DATA CONFIG
-    style = {'description_width': 'initial'}
-    project = widgets.Text(
-        value='test',
-        description='Project name:',
-        layout=Layout(width='40%', height='40px'),
-        style=style
-    )
+    # cmd result
+    text = "No filled"
+    at = 'warning'
+    result = pn.pane.Alert(text.format(alert_type=at), alert_type=at, height=200)
 
-    out_dirw = widgets.Text(
-        value='/home/jovyan/PUT_OUTPUT_DIRNAME',
-        description='Output Directory:',
-        layout=Layout(width='80%', height='40px'),
-        style=style
-    )
+    # buton
+    print_btn = pn.widgets.Button(name='SAVE', width=100, button_type='primary')
+    init_btn = pn.widgets.Button(name='INIT', width=100, button_type='primary')
 
-    ref_fastaw = widgets.Text(
-    value='/home/jovyan/PUT_GENOME_FILE',
-    description='Genome Reference:',
-    layout=Layout(width='80%', height='40px'),
-    style=style
-    )
+    # form
+    project_namef = pn.widgets.TextInput(name='Project name :', placeholder='Enter the name here...')
+    out_dirf = pn.widgets.TextInput(name='Output directory :', placeholder='Enter the directory path here...')
+    fastq_dirf = pn.widgets.TextInput(name='Fastq directory', placeholder='Enter the directory path here...')
+    group_filef = pn.widgets.TextInput(name='Group file', placeholder='Enter the file path here...')
+    ref_filef = pn.widgets.TextInput(name='Reference file', placeholder='Enter the file path here...')
 
-    fastq_dirw = widgets.Text(
-    value='/home/jovyan/PUT_FASTQ_DIR',
-    description='fastq directory:',
-    layout=Layout(width='80%', height='40px'),
-    style=style
-    )
+    def reinit_form(event):
+        project_namef.value = ""
+        out_dirf.value = ""
+        fastq_dirf.value = ""
+        group_filef.value = ""
+        ref_filef.value = ""
+        text = "empty"
+        return
 
-    group_filew = widgets.Text(
-    value='/home/jovyan/PUT_GROUP_FILE',
-    description='Group File :',
-    layout=Layout(width='80%', height='40px'),
-    style=style
-)
+    def print_value(event):
+        project_namew = project_namef.value
+        output_dirw = out_dirf.value
+        fastq_dirw = fastq_dirf.value
+        group_filew = group_filef.value
+        ref_filew = ref_filef.value
 
-    top_box = widgets.HBox([out_dirw, group_filew])
-    bottom_box = widgets.HBox([fastq_dirw, ref_fastaw ])
-    #box_data = widgets.VBox([html1_value, project, outd, out_dirw, out, ref_fastaw, group_filew, outd, fastq_dirw])
-    box_data = widgets.VBox([html1_value, project, out_dirw, group_filew,fastq_dirw, ref_fastaw ])
+        if not output_dirw or not project_namew or not fastq_dirw or not group_filew or not ref_filew:
+            at = 'danger'
+            text = f"""
+    ### WARNING : Fields empty !
+    
+    * PROJECT NAME : {project_namew}
+    * OUTPUT DIRECTORY : {output_dirw}
+    * FASTQ DIRECTORY : {fastq_dirw}
+    * GROUP FILE : {group_filew}
+    * REFERENCE FILE : {ref_filew}
+    
+    """
+        elif not os.path.exists(output_dirw) or not os.path.exists(fastq_dirw) or not os.path.exists(
+                group_filew) or not os.path.exists(ref_filew):
+            at = 'danger'
+            text = f"""
+    ### WARNING : Directory or file don't exist!
+    
+    """
 
-    ##### CONFIG BOX
-    df = pd.read_csv("conf/cluster.conf",names=["tag","val"], sep="=")
-    # widget_display(df)
-    cpu_max = int(df.iat[0, 1])
-    partition = df.iat[1, 1].split(",")
+        else:
+            at = 'success'
+            text = f"""
+    ### All fields successfully filled 
+    
+    <hr>
+    * PROJECT NAME : {project_namew}
+    * OUTPUT DIRECTORY : {output_dirw}
+    * FASTQ DIRECTORY : {fastq_dirw}
+    * GROUP FILE : {group_filew}
+    * REFERENCE FILE : {ref_filew}
+    
+    """
+        result.object = text.format(alert_type="success")
+        return
 
-    cpu = widgets.BoundedIntText(
-        value=6,
-        min=1,
-        max=cpu_max,
-        step=1,
-        description='CPUs:',
-        disabled=False
-    )
+    print_btn.param.watch(print_value, 'clicks')
+    init_btn.param.watch(reinit_form, 'clicks')
 
-    queue = widgets.Select(
-        options=partition,
-        description='Slurm partition:',
-        disabled=False
-    )
+    button = pn.Row(print_btn, init_btn)
+    row1 = pn.Row(project_namef, out_dirf)
+    col1 = pn.Column(row1, fastq_dirf, group_filef, ref_filef, button, result, width=800)
 
-    slurm = widgets.Checkbox(
-           description='Slurm',)
-
-    box_cluster = widgets.VBox([cpu, queue, slurm])
-
-    #### MAPPING CONFIG
-    box_mapping = widgets.VBox([cpu])
-
-
-    #### VBOX
-    # defining a list with the contents of our windows
-    children = [box_data, box_mapping] # box_cluster,
-    # initializing a tab
-    tab = widgets.Tab()
-    # setting the tab windows
-    tab.children = children
-    # changing the title of the first and second window
-    tab.set_title(0, 'Data')
-    #tab.set_title(1, 'Cluster')
-    tab.set_title(1, 'CPU')
+    # box
+    tab=pn.WidgetBox('# INPUT FORM', col1, background='#E3ECF1')
     display(tab)
-    return project, out_dirw, ref_fastaw, group_filew, fastq_dirw, cpu #, queue, slurm  #out_dirw,, fastq_dirw, group_filew,
+
+    return (project_namef, out_dirf, ref_filef, group_filef, fastq_dirf)
+
 
 
 def dashboard_group(df):
