@@ -138,7 +138,7 @@ def fastq_stats_dir(fastq_dir, stat_dir, df, logger):
 
     for file_name in os.listdir(fastq_dir):
 
-        if '.fastq' in file_name or '.fq' in file_name:
+        if '.fastq' in file_name or '.fq' in file_name or '.fastq.gz' in file_name or '.fq.gz' in file_name:
             read_group = file_name.split("_")[0]
 
             if read_group in df['sample'].values:
