@@ -17,9 +17,10 @@
 
 import ipywidgets as widgets
 from ipywidgets import Button, Layout
-import traitlets
+#import traitlets
 from IPython.display import display,HTML
-from tkinter import Tk, filedialog
+from IPython.core.magic import register_cell_magic
+
 #from IPython.core.display import HTML
 
 import pandas as pd
@@ -30,6 +31,20 @@ from time import localtime, strftime
 import param
 import matplotlib.pyplot as plt
 import seaborn as sns
+
+
+
+
+@register_cell_magic
+def bgc(color, cell=None):
+    script = (
+            "var cell = this.closest('.jp-CodeCell');"
+            "var editor = cell.querySelector('.jp-Editor');"
+            "editor.style.background='{}';"
+            "this.parentNode.removeChild(this)"
+    ).format(color)
+
+    display(HTML('<img src onerror="{}">'.format(script)))
 
 
 def init_log(output_dir, project_name):
@@ -60,27 +75,8 @@ def init_log(output_dir, project_name):
     return logger
 
 
-def hide_cell():
+def add_css():
 
-    tag = HTML('''<script>
-    code_show=true; 
-    function code_toggle() {
-        if (code_show){
-            $('div.cell.code_cell.rendered.selected div.input').hide();
-        } else {
-            $('div.cell.code_cell.rendered.selected div.input').show();
-        }
-        code_show = !code_show
-    } 
-
-    $( document ).ready(code_toggle);
-    </script>
-
-    <a href="javascript:code_toggle()">[raw code]</a>''')
-    display(tag)
-
-
-def add_css() : 
     from IPython.core.display import HTML
     css_warning = "<style>.mywarning { color:white ; font-size:100%; font-weight: bold;}"
     HTML("""
@@ -128,18 +124,12 @@ def display_alert(text, at):
 
 def box_config():
 
-    project_namew = ""
-    output_dirw = ""
-    fastq_dirw = ""
-    group_filew = ""
-    ref_filew = ""
-
     # cmd result
     text = "No filled"
     at = 'warning'
     result = pn.pane.Alert(text.format(alert_type=at), alert_type=at, height=200)
 
-    # buton
+    # button
     print_btn = pn.widgets.Button(name='SAVE', width=100, button_type='primary')
     init_btn = pn.widgets.Button(name='INIT', width=100, button_type='primary')
 
@@ -160,26 +150,27 @@ def box_config():
         return
 
     def print_value(event):
-        project_namew = project_namef.value
-        output_dirw = out_dirf.value
-        fastq_dirw = fastq_dirf.value
-        group_filew = group_filef.value
-        ref_filew = ref_filef.value
+        project_name = project_namef.value.rstrip('\s')
+        output_dir = out_dirf.value.rstrip('\s')
+        fastq_dir = fastq_dirf.value.rstrip('\s')
+        group_file = group_filef.value.rstrip('\s')
+        ref_file = ref_filef.value.rstrip('\s')
 
-        if not output_dirw or not project_namew or not fastq_dirw or not group_filew or not ref_filew:
+        if not output_dir or not project_name or not fastq_dir or not group_file or not ref_file:
             at = 'danger'
             text = f"""
     ### WARNING : Fields empty !
     
-    * PROJECT NAME : {project_namew}
-    * OUTPUT DIRECTORY : {output_dirw}
-    * FASTQ DIRECTORY : {fastq_dirw}
-    * GROUP FILE : {group_filew}
-    * REFERENCE FILE : {ref_filew}
+    * PROJECT NAME : {project_name}
+    * OUTPUT DIRECTORY : {output_dir}
+    * FASTQ DIRECTORY : {fastq_dir}
+    * GROUP FILE : {group_file}
+    * REFERENCE FILE : {ref_file}
     
     """
-        elif not os.path.exists(output_dirw) or not os.path.exists(fastq_dirw) or not os.path.exists(
-                group_filew) or not os.path.exists(ref_filew):
+
+        elif not os.path.exists(output_dir) or not os.path.exists(fastq_dir) or not os.path.exists(
+                group_file) or not os.path.exists(ref_file):
             at = 'danger'
             text = f"""
     ### WARNING : Directory or file don't exist!
@@ -192,11 +183,11 @@ def box_config():
     ### All fields successfully filled 
     
     <hr>
-    * PROJECT NAME : {project_namew}
-    * OUTPUT DIRECTORY : {output_dirw}
-    * FASTQ DIRECTORY : {fastq_dirw}
-    * GROUP FILE : {group_filew}
-    * REFERENCE FILE : {ref_filew}
+    * PROJECT NAME : {project_name}
+    * OUTPUT DIRECTORY : {output_dir}
+    * FASTQ DIRECTORY : {fastq_dir}
+    * GROUP FILE : {group_file}
+    * REFERENCE FILE : {ref_file}
     
     """
         result.object = text.format(alert_type="success")
@@ -213,7 +204,7 @@ def box_config():
     tab=pn.WidgetBox('# INPUT FORM', col1, background='#E3ECF1')
     display(tab)
 
-    return (project_namef, out_dirf, ref_filef, group_filef, fastq_dirf)
+    return project_namef, out_dirf, ref_filef, group_filef, fastq_dirf
 
 
 
@@ -264,7 +255,7 @@ def dashboard_group(df):
                           # dashboard_desc,
                           pn.Row(stat, rd.box_view),  # box plot
                           rd.param,
-                          pn.Row(rd.table_view, width=800, max_height=400, scroll=True),  # data table
+                          pn.Row(rd.table_view, width=800, max_height=600, scroll=True),  # data table
                           sizing_mode='stretch_both', background='WhiteSmoke', width=800, scroll=True
                           )
 
