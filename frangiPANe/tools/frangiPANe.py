@@ -74,11 +74,12 @@ def index_reference_genome(file, logger):
             text=f"Indexation in progress with bwa index..."
             display_alert(text, "secondary")
             cmd = f'bwa index {file}'
-            process = subprocess.run(cmd, shell=True, capture_output=True, text=True)
             logger.info(f"\t\tbwa index cmd : {cmd}")
+            process = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+
             if process.returncode:
                 log = f'FAILED EXECUTION : {cmd}\n{process.stdout}\n{process.stderr}'
-                raise log
+                raise ValueError(log)
             else:
                 #display(msg_button(f"SUCCESSFUL INDEXATION: {cmd}", 'green', 'classic'))
                 logger.info(f"\t\tLog : {process.stdout + process.stderr}\n")
