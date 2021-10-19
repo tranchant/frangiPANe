@@ -25,7 +25,7 @@ import panel as pn
 import shutil
 
 from IPython.display import display, HTML
-from tools.jupyter import msg_button, display_alert
+from tools.jupyter import display_alert
 
 
 def make_dir(path):
@@ -365,24 +365,26 @@ def merge_flagstat(output_dir, logger):
 
 
 def bam_to_F0x2_bam(reference_genome, bam_dir, id, cpu, output_dir, logger):
+
     # !samtools view -b -h -F 0x2 -o $output_dir$id"_F0x2.bam" -@ $cpu $bam_dir$id".bam" 
     
     bam = bam_dir + id + ".bam"
     new_bam = output_dir + id + "_F0x2.bam"
 
     if check_file(new_bam) == True : 
-        display(msg_button(f"File {new_bam} already existed", 'yellow', 'classic'))
+        text=f"File {new_bam} already existed"
+        display_alert(text, 'warning')
     else :
-        display(msg_button(f"FILTERING BAM FOR ({bam})... samtools view in progress", 'blue', 'classic'))
+        display_alert(f"FILTERING BAM FOR ({bam})... samtools view in progress", 'secondary')
         cmd = f'samtools view -b -h -F 0x2 -o {new_bam} -@ {cpu} {bam}'
         process = subprocess.run(cmd, shell=True, capture_output=True, text=True)
         logger.info(f"\t\t\tsamtools view cmd : {cmd}")
 
         if process.returncode:
             log = f'FAILED EXECUTION : {cmd}\n{process.stdout}\n{process.stderr}'
-            display(msg_button(log, 'warning', 'warning'))
+            display_alert(log, 'danger')
         else:
-            display(msg_button(f"SUCCESSFULL FILTERING : {cmd}", 'green', 'classic'))
+            display_alert(f"SUCCESSFULL FILTERING : {cmd}", 'success')
 
         if len(process.stdout) > 0 :
             logger.info(f"\t\t\tLog samtools view (STDOUT): {process.stdout}") 
@@ -416,20 +418,20 @@ def abyss_pe(project_name, id, k, bam_dir, output_dir, logger):
     make_dir(output_abyss_dir)
     test_file = output_abyss_dir + project_name + '_' + id + '_' + str(k) + "-contigs.fa"
     if check_file(test_file) == True : 
-        display(msg_button(f"File {test_file} already existed", 'yellow', 'classic'))
+        display_alert(f"File {test_file} already existed", 'warning')
     else :
         #!abyss-pe -C $output_abyss_dir name=$project_name'_'$id'_'$k k=$k in=$bam_dir$id"_F0x2.bam"
         bam = id + "_F0x2.bam"
-        display(msg_button(f"ASSEMBLY FOR {bam} ({k})... ABySS in progress", 'blue', 'classic'))
+        display_alert(f"ASSEMBLY FOR {bam} ({k})... ABySS in progress",'secondary')
         cmd = f'abyss-pe -C {output_abyss_dir} name={project_name}_{id}_{str(k)} k={k} in={bam_dir}{bam}'
-        process = subprocess.run(cmd, shell=True, capture_output=True, text=True)
         logger.info(f"\t\t\tABySS cmd : {cmd}")
+        process = subprocess.run(cmd, shell=True, capture_output=True, text=True)
 
         if process.returncode:
             log = f'FAILED EXECUTION : {cmd}\n{process.stdout}\n{process.stderr}'
-            display(msg_button(log, 'warning', 'warning'))
+            display_alert(log, 'warning')
         else:
-            display(msg_button(f"SUCCESSFULL ASSEMBLY : {cmd}", 'green', 'classic'))
+            display_alert(f"SUCCESSFULL ASSEMBLY : {cmd}",'success')
 
         if len(process.stdout) > 0 :
             logger.info(f"\t\t\tLog ABySS (STDOUT): {process.stdout}") 
@@ -442,7 +444,7 @@ def abyss_pe(project_name, id, k, bam_dir, output_dir, logger):
 def filter_fastq_threshold(file, output_file, threshold):
     from Bio import SeqIO
     if check_file(output_file) == True : 
-        display(msg_button(f"File {output_file} already existed", 'yellow', 'classic'))
+        display(f"File {output_file} already existed",  'warning')
     else : 
         with open(output_file, 'w') as o : 
             for seq in SeqIO.parse(file, "fasta"):
@@ -491,9 +493,9 @@ def parse_assembly_stats_adapted(file, logger):
     logger.info(f"\t\t\tAssembly-stats cmd : {cmd}")
     if process.returncode:
         log = f'FAILED EXECUTION : {cmd}\n{process.stdout}\n{process.stderr}'
-        display(msg_button(log, 'warning', 'warning'))
+        display_alert(log, 'warning')
     else:
-        display(msg_button(f"SUCCESSFULL ASSEMBLY-STATS : {cmd}", 'green', 'classic'))
+        display_alert(f"SUCCESSFULL ASSEMBLY-STATS : {cmd}", 'success')
     if len(process.stdout) > 0 :
         logger.info(f"\t\t\tLog assembly-stats (STDOUT): {process.stdout}") 
     if len(process.stderr) > 0 : 
@@ -507,7 +509,7 @@ def parse_assembly_stats_adapted(file, logger):
         if len(line) > 0 : 
             fields = line.split('\t') # [0] fasta, [1] stat, [2] val
             stats[fields[1]] = fields[2]
-    return(stats)
+    return stats
 
 # def parse_assembly_stats(file) : 
 #     input = !assembly-stats -s $file
