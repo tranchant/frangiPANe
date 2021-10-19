@@ -98,26 +98,6 @@ def widget_display(df):
         display(df)
     return out
 
-def msg_button(desc,button_col, text_col):
-
-    color_text={
-        'warning' : 'mywarning',
-        'classic' : 'myclassic'
-    }
-
-    color_button={
-        'warning' : '#EC4646',
-        'yellow' : '#F8DC81',
-        'green': '#9FD89F',
-        'blue' : '#9FD8DF'
-    }
-
-
-    btn_one = widgets.Button(description=desc, style={'button_color': color_button[button_col]}, layout=Layout(width='100%', height='40px'))
-    btn_one.add_class(color_text[text_col])
-
-    return(widgets.VBox([btn_one]))
-
 
 def display_alert(text, at):
     display(pn.pane.Alert(text.format(alert_type=at), alert_type=at))
@@ -539,7 +519,6 @@ def dashboard_flagstat(stat_file,df_group):
 
 
 def box_config_abyss():
-    kw = ""
 
     # cmd result
     text = "No filled"
@@ -547,76 +526,39 @@ def box_config_abyss():
     result = pn.pane.Alert(text.format(alert_type=at), alert_type=at, height=200)
 
     # buton
-    #print_btn = pn.widgets.Button(name='SAVE', width=100, button_type='primary')
+    print_btn = pn.widgets.Button(name='SAVE', width=100, button_type='primary')
     #init_btn = pn.widgets.Button(name='INIT', width=100, button_type='primary')
 
     # form
-    kf = pn.widgets.FloatSlider(name='K-mer length')
+    kf = pn.widgets.RangeSlider(name='K-mer length', start=24, end=92, step=4, value=(64, 68))
 
-    #def reinit_form(event):
-    #    project_namef.value = ""
-    #    out_dirf.value = ""
-    #    fastq_dirf.value = ""
-    #    group_filef.value = ""
-    #    ref_filef.value = ""
-    #    text = "empty"
-    #    return
+    def print_value(event):
 
-    # def print_value(event):
-    #     project_namew = project_namef.value
-    #     output_dirw = out_dirf.value
-    #     fastq_dirw = fastq_dirf.value
-    #     group_filew = group_filef.value
-    #     ref_filew = ref_filef.value
-    #
-    #     if not output_dirw or not project_namew or not fastq_dirw or not group_filew or not ref_filew:
-    #         at = 'danger'
-    #         text = f"""
-    # ### WARNING : Fields empty !
-    #
-    # * PROJECT NAME : {project_namew}
-    # * OUTPUT DIRECTORY : {output_dirw}
-    # * FASTQ DIRECTORY : {fastq_dirw}
-    # * GROUP FILE : {group_filew}
-    # * REFERENCE FILE : {ref_filew}
-    #
-    # """
-    #     elif not os.path.exists(output_dirw) or not os.path.exists(fastq_dirw) or not os.path.exists(
-    #             group_filew) or not os.path.exists(ref_filew):
-    #         at = 'danger'
-    #         text = f"""
-    # ### WARNING : Directory or file don't exist!
-    #
-    # """
-    #
-    #     else:
-    #         at = 'success'
-    #         text = f"""
-    # ### All fields successfully filled
-    #
-    # <hr>
-    # * PROJECT NAME : {project_namew}
-    # * OUTPUT DIRECTORY : {output_dirw}
-    # * FASTQ DIRECTORY : {fastq_dirw}
-    # * GROUP FILE : {group_filew}
-    # * REFERENCE FILE : {ref_filew}
-    #
-    # """
-    #     result.object = text.format(alert_type="success")
-    #     return
+        kw = kf.value
 
-    #print_btn.param.watch(print_value, 'clicks')
-    #init_btn.param.watch(reinit_form, 'clicks')
+        at = 'success'
+        text = f"""
+            ### k successfully filled
+
+            <hr>
+             * k : {kw}
+        """
+
+        result.object = text.format(alert_type="success")
+        return
+
+    print_btn.param.watch(print_value, 'clicks')
 
     #button = pn.Row(print_btn, init_btn)
     #row1 = pn.Row(project_namef, out_dirf)
-    #col1 = pn.Column(row1, fastq_dirf, group_filef, ref_filef, button, result, width=800)
+    col1 = pn.Column(kf,print_btn, result, width=800)
 
     # box
-    tab = pn.WidgetBox('# INPUT FORM', kw, background='#E3ECF1')
+    tab = pn.WidgetBox('# INPUT FORM', col1, background='#E3ECF1')
     display(tab)
 
-    #return (project_namef, out_dirf, ref_filef, group_filef, fastq_dirf)
+    return kf.value
+
 
 def dashboard_cdhit(df_cdhit):
     df_cdhit['pb'] = df_cdhit['pb'].astype(int)
