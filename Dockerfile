@@ -11,7 +11,6 @@ RUN apt update \
 RUN pip3 install panel \
 && pip3 install biopython
 
-
 RUN curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash - \
 && sudo apt-get install -y nodejs
 
@@ -25,6 +24,8 @@ RUN mkdir /data/ \
 
 RUN apt install -y ea-utils bwa samtools
 RUN apt install -y abyss
+
+RUN conda install -c bioconda assembly-stats
 
 USER $NB_UID
 #  https://stackoverflow.com/questions/55362117/symlink-in-docker-container-not-supported
