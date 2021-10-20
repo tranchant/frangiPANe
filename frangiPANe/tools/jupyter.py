@@ -518,8 +518,7 @@ def dashboard_flagstat(stat_file,df_group):
     display(dashboard)
 
 
-def box_config_abyss():
-
+def box_config_abyss(df):
     # cmd result
     text = "No filled"
     at = 'warning'
@@ -527,37 +526,46 @@ def box_config_abyss():
 
     # buton
     print_btn = pn.widgets.Button(name='SAVE', width=100, button_type='primary')
-    #init_btn = pn.widgets.Button(name='INIT', width=100, button_type='primary')
+    init_btn = pn.widgets.Button(name='INIT', width=100, button_type='primary')
 
     # form
-    kf = pn.widgets.RangeSlider(name='K-mer length', start=24, end=92, step=4, value=(64, 68))
+    k = pn.widgets.RangeSlider(name='K-mer length', start=24, end=92, step=4, value=(64, 68))
+    step = pn.widgets.IntInput(name='Step', value=4, step=1, start=1, end=10)
+    accession = pn.widgets.MultiSelect(name='Accession', options=list(df['sample']), size=4)
 
     def print_value(event):
-
-        kw = kf.value
-
         at = 'success'
         text = f"""
             ### k successfully filled
 
             <hr>
-             * k : {kw}
+             * k : {k.value}
+             * step : {step.value}
+             * Accession : {accession.value}
         """
 
         result.object = text.format(alert_type="success")
         return
 
-    print_btn.param.watch(print_value, 'clicks')
+    def reinit_form(event):
+        ki.value = (64, 68)
+        accession.value = list()
+        step.value = 4
+        text = "empty"
+        return
 
-    #button = pn.Row(print_btn, init_btn)
-    #row1 = pn.Row(project_namef, out_dirf)
-    col1 = pn.Column(kf,print_btn, result, width=800)
+    print_btn.param.watch(print_value, 'clicks')
+    init_btn.param.watch(reinit_form, 'clicks')
+
+    button = pn.Row(print_btn, init_btn)
+    row1 = pn.Row(k, step)
+    col1 = pn.Column(row1, accession, button, result, width=800)
 
     # box
     tab = pn.WidgetBox('# INPUT FORM', col1, background='#E3ECF1')
     display(tab)
 
-    return kf.value
+    return k,step,accession
 
 
 def dashboard_cdhit(df_cdhit):
