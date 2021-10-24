@@ -16,12 +16,10 @@
 """
 
 import ipywidgets as widgets
-from ipywidgets import Button, Layout
-#import traitlets
+
 from IPython.display import display,HTML
 from IPython.core.magic import register_cell_magic
 
-#from IPython.core.display import HTML
 
 import pandas as pd
 import panel as pn
@@ -186,110 +184,6 @@ def box_config():
 
     return project_namef, out_dirf, ref_filef, group_filef, fastq_dirf
 
-
-
-def dashboard_group(df):
-
-    pn.extension()
-
-    # create a class containing an species selector drop-down, various plots, and a data table output
-    class GroupDashboard(param.Parameterized):
-        # drop down selector widget containing the list of species
-        # Animal = param.ObjectSelector(default='Goat', objects=list(df.Animal.unique()))
-        Species = param.ObjectSelector(default=df.Species.unique().any(), objects=list(df.Species.unique()))
-
-        # create data set containing only the data applicable to the species  in the drop down selector
-        def get_data(self):
-            class_df = df[(df.Species == self.Species)].copy()
-            return class_df
-
-        # seaborn box plot for the chosen animal
-        def box_view(self):
-            data = df
-            plt.figure(figsize=(4, 3))
-            ax = sns.countplot(y=data['Species'], palette="hls")
-            plt.close()
-            return ax.figure
-
-        # table of data for the chosen animal
-        def table_view(self):
-            data = self.get_data()
-            return data
-
-    species_list=df.Species.unique().tolist()
-    stat = f"## Samples : {df['sample'].count()} \n#### Group : { ' '.join(species_list) }\n "
-
-    # create an instance of the class
-    rd = GroupDashboard(name='')
-
-    # create a title for the dashboard
-    dashboard_title = '# Population Group'
-
-    # create some text describing the dashboard
-    dashboard_desc = 'Some statistics and list sample by group '
-
-    # create a dashboard, defining the layout as one column containing the
-    # dashboard title, dashboard description, drop down selector,
-    # box plot, and data table
-    dashboard = pn.Column(dashboard_title,
-                          # dashboard_desc,
-                          pn.Row(stat, rd.box_view),  # box plot
-                          rd.param,
-                          pn.Row(rd.table_view, width=800, max_height=600, scroll=True),  # data table
-                          sizing_mode='stretch_both', background='WhiteSmoke', width=800, scroll=True
-                          )
-
-    # show the dashboard with the data embedded ,
-    # (for using in an html download of the notebook so that
-    # no 'callback' is required from the browser to get the data)
-    dashboard.embed()
-
-
-def dashboard_groupBis(dfg):
-
-    from io import StringIO
-
-    groups = pn.widgets.MultiChoice(
-        name='Group', options=list(dfg.Species.unique()), margin=(0, 20, 0, 0)
-    )
-    samples = pn.widgets.MultiChoice(
-        name='Sample', options=list(dfg['sample']), margin=(0, 20, 0, 0)
-    )
-
-    @pn.depends(groups, samples)
-    def filtered_smp(grp, smp):
-        df = dfg
-        if groups.value:
-            df = dfg[dfg.Species.isin(grp)]
-        if samples.value:
-            df = dfg[dfg['sample'].isin(smp)]
-        return df
-
-    @pn.depends(groups, samples)
-    def filtered_file(grp, smp):
-        df = filtered_smp(grp, smp)
-        sio = StringIO()
-        df.to_csv(sio)
-        sio.seek(0)
-        return sio
-
-    fd = pn.widgets.FileDownload(
-        callback=filtered_file, filename='filtered_group.csv'
-    )
-
-    ax = sns.countplot(y=dfg['Species'], palette="Set2")
-    plt.close()
-    stat = f"## Samples : {dfg['sample'].count()} \n#### Group : {dfg.Species.unique()}\n "
-
-    # create a title for the dashboard
-    dashboard_title = '# Population Group'
-
-    dashboard = pn.Column(dashboard_title, pn.Row(stat, ax.figure), pn.Row(groups, samples), fd,
-                          pn.panel(filtered_smp, width=800, max_height=400, scroll=True), width=800,
-                          sizing_mode='stretch_both', background='WhiteSmoke', scroll=True).servable()
-    display(dashboard)
-
-
 def dashboard_genome(reference_genome):
 
     from Bio import SeqIO
@@ -321,6 +215,7 @@ def dashboard_genome(reference_genome):
         data=df_genome,
         x="chr", y="size"
     )
+    ax.set(xlabel="Chr", ylabel="Size (Mb)")
     plt.close()
     stat = f"## Genome size (Mb) : {df_genome['size'].sum()}"
 
@@ -332,6 +227,64 @@ def dashboard_genome(reference_genome):
     display(dashboard)
 
     return total_genome
+
+
+def dashboard_group(df):
+
+    pn.extension()
+
+    # create a class containing an species selector drop-down, various plots, and a data table output
+    class GroupDashboard(param.Parameterized):
+        # drop down selector widget containing the list of species
+        # Animal = param.ObjectSelector(default='Goat', objects=list(df.Animal.unique()))
+        Species = param.ObjectSelector(default=df.Species.unique().any(), objects=list(df.Species.unique()))
+
+        # create data set containing only the data applicable to the species  in the drop down selector
+        def get_data(self):
+            class_df = df[(df.Species == self.Species)].copy()
+            return class_df
+
+        # seaborn box plot for the chosen animal
+        def box_view(self):
+            data = df
+            plt.figure()#figsize=(4, 3))
+            ax = sns.countplot(y=data['Species'], palette="hls")
+            plt.close()
+            return ax.figure
+
+        # table of data for the chosen animal
+        def table_view(self):
+            data = self.get_data()
+            return data
+
+    species_list=df.Species.unique().tolist()
+    stat = f"## Samples : {df['sample'].count()} \n#### Group : { ' '.join(species_list) }\n "
+
+    # create an instance of the class
+    rd = GroupDashboard(name='')
+
+    # create a title for the dashboard
+    dashboard_title = '# Population Group'
+
+    # create some text describing the dashboard
+    dashboard_desc = 'Some statistics and list sample by group '
+
+    # create a dashboard, defining the layout as one column containing the
+    # dashboard title, dashboard description, drop down selector,
+    # box plot, and data table
+    dashboard = pn.Column(dashboard_title,
+                          # dashboard_desc,
+                          pn.Row(stat, rd.box_view),  # box plot
+                          rd.param,
+                          pn.Row(rd.table_view, scroll=True, width=800, height=400),  # data table
+                          sizing_mode='stretch_both', background='WhiteSmoke', scroll=True
+                          )
+
+    # show the dashboard with the data embedded ,
+    # (for using in an html download of the notebook so that
+    # no 'callback' is required from the browser to get the data)
+    dashboard.embed()
+
 
 
 def dashboard_fastq(csv,total_size,df_group):
@@ -353,7 +306,7 @@ def dashboard_fastq(csv,total_size,df_group):
 
     # Plot total bases pb by sample
     df_merge = df_stat_merged.groupby('sample')['total_bases'].sum()
-    plt.figure(figsize=(10, 5))
+    plt.figure()#figsize=(10, 5))
     total = df_merge.plot(kind='bar', color='#66C2A5')
     total.set(xlabel="sample", ylabel="Total (Mb)")
     total.set_title("Total pb sequenced by sample")
@@ -371,10 +324,10 @@ def dashboard_fastq(csv,total_size,df_group):
 
     # Coverage
     df_merge = df_stat_merged.groupby('sample')['total_bases'].sum().div(total_size)
-    plt.figure(figsize=(10, 5))
+    plt.figure()#figsize=(10, 5))
     x = df_merge.plot(kind='bar', color='#66C2A5')
     x.set(xlabel="sample", ylabel="X")
-    x.set_title("Secincing coverage by sample")
+    x.set_title("Sequencing coverage by sample")
     plt.close()
 
     # print(df_stat_group.groupby('sample')['Species'].unique().values)
@@ -387,7 +340,7 @@ def dashboard_fastq(csv,total_size,df_group):
 
     # Plot length read
     # df_read = df_stat_merged[["file","len_min","len","len_mean"]]
-    plt.figure(figsize=(10, 5))
+    plt.figure()#figsize=(10, 5))
     read = sns.scatterplot(x='file', y='len_mean', data=df_stat_merged, linewidth=2, palette="colorblind")
     read.set(xlabel="file", ylabel="read length (pb)")
     read.set_title("Read length over samples")
@@ -399,7 +352,7 @@ def dashboard_fastq(csv,total_size,df_group):
 
     # Plot quality
     # df_qual = df_fstat_merged[["file","qual_min","qual_max","qual_mean"]]
-    plt.figure(figsize=(10, 5))
+    plt.figure()#figsize=(10, 5))
     qual = sns.scatterplot(x='file', y='qual_mean', data=df_stat_merged, linewidth=2.5, palette="bright")
     qual.set(xlabel="file", ylabel="qual mean")
     qual.set_title("Quality mean over samples")
@@ -411,7 +364,7 @@ def dashboard_fastq(csv,total_size,df_group):
 
     # Plot base ratio
     df_ratio = df_stat_merged[["file", "%A", "%C", "%G", "%T", "%N"]]
-    plt.figure(figsize=(10, 5))
+    plt.figure()#figsize=(10, 5))
     base = sns.lineplot(x='file', y='value', hue='variable', data=pd.melt(df_ratio, 'file'),
                         linewidth=2, markersize=8, palette="hls", marker='o', linestyle='dashed')
     base.set(xlabel="file", ylabel="base ratio")
@@ -423,6 +376,7 @@ def dashboard_fastq(csv,total_size,df_group):
 
     df_short = df_stat_merged[
         ["sample", "file", "reads", "len_mean", "qual_mean", "%A", "%C", "%G", "%T", "%N", "total_bases"]]
+    row1 = pn.Row()
     dashboard_title = '# Some statistics about fastq files'
     dashboard = pn.Column(dashboard_title, total_desc, pn.pane.Markdown(table_sp), pn.pane.Markdown(table),
                           total.figure, total_x, x.figure, read_desc, read.figure, qual_desc, qual.figure, base_desc,
@@ -477,7 +431,7 @@ def dashboard_flagstat(stat_file,df_group):
     unmapped_desc = format_stat(unmapped_min, unmapped_max, unmapped_mean)
     unmapped_desc_sp = group_stat(df_stat_merged, 'Species', 'UNMAPPED')
 
-    plt.figure(figsize=(12, 5))
+    plt.figure()#figsize=(12, 5))
     ratio = sns.scatterplot(x='sample', y='value', hue='variable', data=pd.melt(df_bam_stat, 'sample'))
     ratio.set(xlabel="sample", ylabel="ratio")
     ratio.set_title("Read mapped ratio ")
@@ -524,6 +478,8 @@ def box_config_abyss(df):
     at = 'warning'
     result = pn.pane.Alert(text.format(alert_type=at), alert_type=at, height=200)
 
+    df_sorted = df.sort_values(by=['sample'], ascending=True)
+
     # buton
     print_btn = pn.widgets.Button(name='SAVE', width=100, button_type='primary')
     init_btn = pn.widgets.Button(name='INIT', width=100, button_type='primary')
@@ -531,7 +487,10 @@ def box_config_abyss(df):
     # form
     k = pn.widgets.RangeSlider(name='K-mer length', start=24, end=92, step=4, value=(64, 68))
     step = pn.widgets.IntInput(name='Step', value=4, step=1, start=1, end=10)
-    accession = pn.widgets.MultiSelect(name='Accession', options=list(df['sample']), size=4)
+    threshold = pn.widgets.IntInput(name='Minimal length to filter', value=300, step=100, start=100, end=10000)
+
+    accession = pn.widgets.MultiSelect(name='Accession', options=list(df_sorted['sample']), size=4)
+
 
     def print_value(event):
         at = 'success'
@@ -542,6 +501,7 @@ def box_config_abyss(df):
              * k : {k.value}
              * step : {step.value}
              * Accession : {accession.value}
+             * Minimal length : {threshold.value}
         """
 
         result.object = text.format(alert_type="success")
@@ -551,6 +511,7 @@ def box_config_abyss(df):
         ki.value = (64, 68)
         accession.value = list()
         step.value = 4
+        treshold.value = 300
         text = "empty"
         return
 
@@ -559,13 +520,13 @@ def box_config_abyss(df):
 
     button = pn.Row(print_btn, init_btn)
     row1 = pn.Row(k, step)
-    col1 = pn.Column(row1, accession, button, result, width=800)
+    col1 = pn.Column(row1, accession, threshold, button, result, width=800)
 
     # box
     tab = pn.WidgetBox('# INPUT FORM', col1, background='#E3ECF1')
     display(tab)
 
-    return k,step,accession
+    return k,step,accession,threshold
 
 
 def dashboard_cdhit(df_cdhit):
