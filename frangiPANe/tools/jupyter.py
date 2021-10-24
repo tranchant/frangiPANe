@@ -529,6 +529,49 @@ def box_config_abyss(df):
     return k,step,accession,threshold
 
 
+def box_config_abyss2():
+    # cmd result
+    text = "No filled"
+    at = 'warning'
+    result = pn.pane.Alert(text.format(alert_type=at), alert_type=at, height=200)
+
+    # buton
+    print_btn = pn.widgets.Button(name='SAVE', width=100, button_type='primary')
+    init_btn = pn.widgets.Button(name='INIT', width=100, button_type='primary')
+
+    # form
+    k = pn.widgets.IntInput(name='K-mer length', start=24, end=92, step=1, value=64)
+
+    def print_value(event):
+        at = 'success'
+        text = f"""
+            ### k successfully filled
+
+            <hr>
+             * k : {k.value}
+        """
+
+        result.object = text.format(alert_type="success")
+        return
+
+    def reinit_form(event):
+        k.value = 64
+        text = "empty"
+        return
+
+    print_btn.param.watch(print_value, 'clicks')
+    init_btn.param.watch(reinit_form, 'clicks')
+
+    button = pn.Row(print_btn, init_btn)
+    col1 = pn.Column(k, button, result, width=800)
+
+    # box
+    tab = pn.WidgetBox('# INPUT FORM', col1, background='#E3ECF1')
+    display(tab)
+
+    return k
+
+
 def dashboard_cdhit(df_cdhit):
     df_cdhit['pb'] = df_cdhit['pb'].astype(int)
 
