@@ -23,7 +23,7 @@ RUN mkdir /data/ \
 && ln -s /data/frangiPANe/ /home/jovyan/
 
 RUN apt install -y ea-utils bwa samtools
-RUN apt install -y abyss
+RUN apt install -y abyss cd-hit
 
 RUN conda install -c bioconda assembly-stats
 

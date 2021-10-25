@@ -18,7 +18,8 @@ frangiPANe  was  developed  as  a  modular  and  interactive application  to  si
  * bwa (v. 0.7.17) : https://github.com/lh3/bwa/blob/master/README.md
  * ea-utils (fastq-stats, v 1.01) : https://expressionanalysis.github.io/ea-utils/
  * samtools (v1.10) : http://www.htslib.org/
-* assembly-stats : https://github.com/sanger-pathogens/assembly-stats
+ * assembly-stats : https://github.com/sanger-pathogens/assembly-stats
+ * cd-hit : https://github.com/weizhongli/cdhit/blob/master/README
 
 ### How to use FrangiPANe ?
 
