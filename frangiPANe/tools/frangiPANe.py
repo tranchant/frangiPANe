@@ -583,7 +583,7 @@ def cdhit(contigs, c, s, cdhit_file, logger):
     text = f"Clustering all contigs with cdhit-est.. on progress"
     display_alert(text, "secondary")
 
-    cmd = f"/home/christine/Téléchargements/cd-hit-v4.8.1-2019-0228/cd-hit-est -c {c} -s {s} -i {contigs} -o {cdhit_file}  "
+    cmd = f"cd-hit-est -c {c} -s {s} -i {contigs} -o {cdhit_file}  "
 
     process = subprocess.run(cmd, shell=True, capture_output=True, text=True)
     logger.info(f"\t\t\tscdhit cmd : {cmd}")
