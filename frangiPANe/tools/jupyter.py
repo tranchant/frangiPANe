@@ -100,6 +100,7 @@ def widget_display(df):
 def display_alert(text, at):
     display(pn.pane.Alert(text.format(alert_type=at), alert_type=at))
 
+
 def box_config():
 
     # cmd result
@@ -183,6 +184,7 @@ def box_config():
     display(tab)
 
     return project_namef, out_dirf, ref_filef, group_filef, fastq_dirf
+
 
 def dashboard_genome(reference_genome):
 
@@ -372,16 +374,21 @@ def dashboard_fastq(csv,total_size,df_group):
     plt.legend('ACGTN', ncol=1, loc='upper left');
     plt.close()
 
-    base_desc = "### About base ratio :"
+    base_desc = "### About base ratio"
 
     df_short = df_stat_merged[
         ["sample", "file", "reads", "len_mean", "qual_mean", "%A", "%C", "%G", "%T", "%N", "total_bases"]]
     row1 = pn.Row()
     dashboard_title = '# Some statistics about fastq files'
-    dashboard = pn.Column(dashboard_title, total_desc, pn.pane.Markdown(table_sp), pn.pane.Markdown(table),
-                          total.figure, total_x, x.figure, read_desc, read.figure, qual_desc, qual.figure, base_desc,
-                          base.figure, pn.panel(df_short, width=800),
-                          sizing_mode='stretch_both', background='WhiteSmoke', width=800).servable()
+    dashboard = pn.Column(dashboard_title,
+                        pn.Row(total_desc, pn.Spacer(sizing_mode='stretch_both', width=100),pn.pane.Markdown(table_sp),width=800),
+                        pn.Row(pn.pane.Markdown(table), pn.Spacer(sizing_mode='stretch_both', width=100), total.figure, width=800),
+                        pn.Row(total_x, pn.Spacer(sizing_mode='stretch_both', width=100), x.figure, width=800),
+                        pn.Row(read_desc, pn.Spacer(sizing_mode='stretch_both', width=100), read.figure, width=800),
+                        pn.Row(qual_desc, pn.Spacer(sizing_mode='stretch_both', width=100), qual.figure, width=800),
+                        pn.Row(base_desc, pn.Spacer(sizing_mode='stretch_both', width=100), base.figure, width=800),
+                        pn.panel(df_short, width=800), sizing_mode='stretch_both', background='WhiteSmoke', width=800).servable()
+
     display(dashboard)
 
 
@@ -490,7 +497,6 @@ def box_config_abyss(df):
     threshold = pn.widgets.IntInput(name='Minimal length to filter', value=300, step=100, start=100, end=10000)
 
     accession = pn.widgets.MultiSelect(name='Accession', options=list(df_sorted['sample']), size=4)
-
 
     def print_value(event):
         at = 'success'
