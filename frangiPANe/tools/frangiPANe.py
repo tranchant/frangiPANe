@@ -425,7 +425,7 @@ def abyss_pe(project_name, id, k, bam_dir, output_dir, logger):
     else :
         #!abyss-pe -C $output_abyss_dir name=$project_name'_'$id'_'$k k=$k in=$bam_dir$id"_F0x2.bam"
         bam = id + "_F0x2.bam"
-        display_alert(f"ASSEMBLY FOR {bam} ({k})... ABySS in progress",'secondary')
+        display_alert(f"Assembly for {bam} ({k}) in progress...",'secondary')
         cmd = f'abyss-pe -C {output_abyss_dir} name={project_name}_{id}_{str(k)} k={k} in={bam_dir}{bam}'
         logger.info(f"\t\t\tABySS cmd : {cmd}")
         process = subprocess.run(cmd, shell=True, capture_output=True, text=True)
@@ -434,7 +434,7 @@ def abyss_pe(project_name, id, k, bam_dir, output_dir, logger):
             log = f'FAILED EXECUTION : {cmd}\n{process.stdout}\n{process.stderr}'
             display_alert(log, 'warning')
         else:
-            display_alert(f"SUCCESSFULL ASSEMBLY : {cmd}",'success')
+            display_alert(f"Abyss successfully executed",'success')
 
         if len(process.stdout) > 0 :
             logger.info(f"\t\t\tLog ABySS (STDOUT): {process.stdout}") 
