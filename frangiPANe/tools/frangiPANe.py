@@ -144,6 +144,11 @@ def fastq_stats_dir(fastq_dir, stat_dir, df, logger):
 
             if read_group in df['sample'].values:
                 fastq_stats(os.path.join(fastq_dir, file_name), stat_dir, logger)
+            else:
+                text = f"Read group {read_group} in this file ({file_name}) not in group file.... Skip fastq stats"
+                at = 'warning'
+                display_alert(text, at)
+
 
     text = f"""
     ### All stat files generated successfully with fastq-stat
@@ -196,8 +201,8 @@ def fastq2bam_dir(reference, fastq_dir, df, cpu, bam_dir, logger):
 
     make_dir(bam_dir)
 
-    logger.info(f"MAPPING STEP :")
-    logger.info(f"\t\tFastq : {fastq_dir}")
+    logger.info(f"\nMAPPING STEP :")
+    logger.info(f"\t\tFastq directory : {fastq_dir}")
     logger.info(f"\t\tMapping directory : {bam_dir}")
 
     text = f"Starting mapping with bwa mem in {bam_dir}..."
@@ -228,7 +233,7 @@ def fastq2bam(reference, fastq_file, cpu, bam_dir, logger):
     file_name = os.path.basename(fastq_file)
     read_group = file_name.split("_")[0]
 
-    text=f"Mapping with bwa mem on progress for {read_group}..."
+    text=f"Mapping in progress for {read_group}..."
     display_alert(text, "secondary")
 
     fastq2_file = fastq_file.replace("1.f", "2.f")
@@ -243,15 +248,15 @@ def fastq2bam(reference, fastq_file, cpu, bam_dir, logger):
         text = f"Failed execution ({read_group}).... see log file, resolve the problem and try again"
         at='danger'
         display_alert(text, at)
-        logger.info(f"\t\t\tLog bwa mem : {process1.stdout + process1.stderr}")
+        logger.info(f"\t\t\tLog bwa mem : {process1.stdout + process1.stderr}\n")
     else:
         at = 'success'
         text = f"bwa mem executed successfully ({sam_file})"
         display_alert(text, at)
-        logger.info(f"\t\t\tLog bwa mem : {process1.stdout + process1.stderr}")
+        logger.info(f"\t\t\tLog bwa mem : {process1.stdout + process1.stderr}\n")
 
         #display(msg_button(f"MAPPING STEP FOR ({read_group})... samtools sort in progress", 'blue', 'classic'))
-        text = f"Sort sam file with samtools sort on progress for {read_group}..."
+        text = f"Sort bam file in progress for {read_group}..."
         display_alert(text, "secondary")
         cmd2 = f'samtools sort {sam_file} -@ {cpu} -o {bam_file} '
         process2 = subprocess.run(cmd2, shell=True, capture_output=True, text=True)
@@ -263,10 +268,10 @@ def fastq2bam(reference, fastq_file, cpu, bam_dir, logger):
             display_alert(text, at)
         else:
             at = 'success'
-            text = f"Sort Sam file into bam successfully done ({bam_file})"
+            text = f"Sort bam file executed successfully ({bam_file})"
             display_alert(text, at)
             os.remove(sam_file)
-        logger.info(f"\t\t\tLog bwa mem : {process2.stdout + process2.stderr}")
+        logger.info(f"\t\t\tLog samtools sort : {process2.stdout + process2.stderr}")
 
 
 def fastq_to_bam(reference_genome, fastq_dir, id, cpu, output_dir,logger):
@@ -364,10 +369,8 @@ def merge_flagstat(output_dir, logger):
     display_alert(text, at)
 
 
-def bam_to_F0x2_bam(reference_genome, bam_dir, id, cpu, output_dir, logger):
+def bam_to_F0x2_bam(bam_dir, id, cpu, output_dir, logger):
 
-    # !samtools view -b -h -F 0x2 -o $output_dir$id"_F0x2.bam" -@ $cpu $bam_dir$id".bam" 
-    
     bam = bam_dir + id + ".bam"
     new_bam = output_dir + id + "_F0x2.bam"
 
@@ -375,7 +378,7 @@ def bam_to_F0x2_bam(reference_genome, bam_dir, id, cpu, output_dir, logger):
         text=f"File {new_bam} already existed"
         display_alert(text, 'warning')
     else :
-        display_alert(f"FILTERING BAM FOR ({bam})... samtools view in progress", 'secondary')
+        display_alert(f"Filtering {bam} in progress...", 'secondary')
         cmd = f'samtools view -b -h -F 0x2 -o {new_bam} -@ {cpu} {bam}'
         process = subprocess.run(cmd, shell=True, capture_output=True, text=True)
         logger.info(f"\t\t\tsamtools view cmd : {cmd}")
@@ -384,7 +387,7 @@ def bam_to_F0x2_bam(reference_genome, bam_dir, id, cpu, output_dir, logger):
             log = f'FAILED EXECUTION : {cmd}\n{process.stdout}\n{process.stderr}'
             display_alert(log, 'danger')
         else:
-            display_alert(f"SUCCESSFULL FILTERING : {cmd}", 'success')
+            display_alert(f"Filtering bam executed sucessfully", 'success')
 
         if len(process.stdout) > 0 :
             logger.info(f"\t\t\tLog samtools view (STDOUT): {process.stdout}") 
@@ -442,22 +445,24 @@ def abyss_pe(project_name, id, k, bam_dir, output_dir, logger):
 
 
 def filter_fastq_threshold(file, output_file, threshold):
+
     from Bio import SeqIO
     if check_file(output_file) == True : 
         display(f"File {output_file} already existed",  'warning')
-    else : 
-        with open(output_file, 'w') as o : 
+    else :
+        with open(output_file, 'w') as o :
             for seq in SeqIO.parse(file, "fasta"):
-                if len(seq) >= threshold : 
+                if len(seq) >= threshold :
                     o.write('>' + str(seq.description) + '\n')
                     txt = str(seq.seq)
-                    lines = txt.split('\n') 
-                    for line in lines : 
-                        if len(line) > 0 : 
-                            if line[0] == '>' : 
+                    lines = txt.split('\n')
+                    for line in lines :
+                        if len(line) > 0 :
+                            if line[0] == '>' :
                                 o.write(line + '\n')
-                            else : 
+                            else :
                                 o.write(format_60(line) + '\n')
+
 
 
 def def_stats():
