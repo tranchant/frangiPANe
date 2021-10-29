@@ -492,15 +492,18 @@ def fill_stats_files(input_dir, id, k, output_dir, threshold, logger) :
 
 
 def parse_assembly_stats_adapted(file, logger):
-    # input = !assembly-stats -s $file
+
     cmd = f'assembly-stats -s {file}'
+    text = f"Generating stat (with assembly-stats) for {file}..."
+    display_alert(text, "secondary")
     process = subprocess.run(cmd, shell=True, capture_output=True, text=True)
     logger.info(f"\t\t\tAssembly-stats cmd : {cmd}")
+
     if process.returncode:
         log = f'FAILED EXECUTION : {cmd}\n{process.stdout}\n{process.stderr}'
         display_alert(log, 'warning')
     else:
-        display_alert(f"SUCCESSFULL ASSEMBLY-STATS : {cmd}", 'success')
+        display_alert(f"assembly-stats successfully done ({file})", 'success')
     if len(process.stdout) > 0 :
         logger.info(f"\t\t\tLog assembly-stats (STDOUT): {process.stdout}") 
     if len(process.stderr) > 0 : 
