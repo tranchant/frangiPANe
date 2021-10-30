@@ -423,7 +423,7 @@ def abyss_pe(project_name, id, k, bam_dir, output_dir, logger):
     if check_file(test_file) == True : 
         display_alert(f"File {test_file} already existed", 'warning')
     else :
-        #!abyss-pe -C $output_abyss_dir name=$project_name'_'$id'_'$k k=$k in=$bam_dir$id"_F0x2.bam"
+
         bam = id + "_F0x2.bam"
         display_alert(f"Assembly for {bam} ({k}) in progress...",'secondary')
         cmd = f'abyss-pe -C {output_abyss_dir} name={project_name}_{id}_{str(k)} k={k} in={bam_dir}{bam}'
@@ -667,3 +667,23 @@ def parse_cdhit(cdhit_cluster, df_group, cdhit_csv):
     df_cluster.to_csv(cdhit_csv, index=False)
 
     return df_cluster
+
+def samtools_index(bam_name, logger):
+
+    bam = os.path.basename(bam_name)
+
+    text=f"Bam indexing {bam}..."
+    display_alert(text, "secondary")
+
+    cmd = f'samtools index {bam_name}'
+    process = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+    logger.info(f"\t\t\tsamtools cmd : {cmd}")
+
+    if process.returncode:
+        text = f"Failed execution ({bam}).... see log file, resolve the problem and try again"
+        at = 'danger'
+    else:
+        at = 'success'
+        text = f"samtools index executed successfully)"
+    logger.info(f"\t\t\tLog samtools : {process.stdout + process.stderr}")
+    display_alert(text, at)
