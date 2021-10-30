@@ -582,7 +582,7 @@ def dashboard_cdhit(df_cdhit):
     df_cdhit['pb'] = df_cdhit['pb'].astype(int)
 
     cdhit_comp = f"""### Cluster composition
-* Sequences Number : {df_cdhit['pb'].count()}
+* Sequences Number : {df_cdhit['pb'].count()} ({df_cdhit['pb'].sum()} pb)
     * singleton: {df_cdhit[df_cdhit.ln == 1]['pb'].count()}
     * clusters: {df_cdhit[(df_cdhit.ln > 1)]['index'].count()}
 """
