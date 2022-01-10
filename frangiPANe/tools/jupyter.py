@@ -20,7 +20,7 @@ import ipywidgets as widgets
 from IPython.display import display,HTML
 from IPython.core.magic import register_cell_magic
 
-
+import pickle
 import pandas as pd
 import panel as pn
 import logging,os
@@ -103,6 +103,9 @@ def display_alert(text, at):
 
 def box_config():
 
+    # save variables into a file
+    file_load = 'frangiPANe.p'
+
     # cmd result
     text = "No filled"
     at = 'warning'
@@ -111,7 +114,7 @@ def box_config():
     # button
     print_btn = pn.widgets.Button(name='SAVE', width=100, button_type='primary')
     init_btn = pn.widgets.Button(name='INIT', width=100, button_type='primary')
-
+    load_btn = pn.widgets.Button(name='LOAD', width=100, button_type='primary')
     # form
     project_namef = pn.widgets.TextInput(name='Project name :', placeholder='Enter the name here...')
     out_dirf = pn.widgets.TextInput(name='Output directory :', placeholder='Enter the directory path here...')
@@ -125,6 +128,27 @@ def box_config():
         fastq_dirf.value = ""
         group_filef.value = ""
         ref_filef.value = ""
+
+        at = 'danger'
+        text = f"""
+        ### WARNING : Fill form
+        """
+
+        text = "empty"
+
+        return
+
+    def load_form(event):
+
+        file = open(file_load, 'rb')
+        variables = pickle.load(file)
+        project_namef.value = variables["project_name"]
+        out_dirf.value = variables["out_dir"]
+        fastq_dirf.value = variables["ref_file"]
+        group_filef.value = variables["group_file"]
+        ref_filef.value = variables["ref_file"]
+        file.close()
+
         text = "empty"
         return
 
@@ -148,13 +172,14 @@ def box_config():
     
     """
 
-        elif not os.path.exists(output_dir) or not os.path.exists(fastq_dir) or not os.path.exists(
-                group_file) or not os.path.exists(ref_file):
-            at = 'danger'
-            text = f"""
-    ### WARNING : Directory or file don't exist!
-    
-    """
+        elif not os.path.exists(fastq_dir) or not os.path.isdir(fastq_dir)  :
+            text = f"### WARNING : Directory doesn't exist or is not a directory : {fastq_dir} "
+
+        elif not os.path.exists(group_file) or not os.path.isfile(group_file):
+            text = f"### WARNING : File doesn't exist or is not a file : {group_file}"
+
+        elif not os.path.exists(ref_file) or not os.path.isfile(ref_file):
+            text = f"### WARNING : File doesn't exist : {ref_file} or is not a file"
 
         else:
             at = 'success'
@@ -169,13 +194,27 @@ def box_config():
     * REFERENCE FILE : {ref_file}
     
     """
+            variables = {
+                            "project_name": project_name,
+                            "out_dir": output_dir,
+                            "ref_file": ref_file,
+                            "group_file": group_file,
+                            "fastq_dir": fastq_dir
+                         }
+            #print(variables)
+
+            file = open(file_load, 'wb')
+            pickle.dump(variables, file)
+            file.close()
+
         result.object = text.format(alert_type="success")
         return
 
     print_btn.param.watch(print_value, 'clicks')
     init_btn.param.watch(reinit_form, 'clicks')
+    load_btn.param.watch(load_form, 'clicks')
 
-    button = pn.Row(print_btn, init_btn)
+    button = pn.Row(print_btn, load_btn, init_btn)
     row1 = pn.Row(project_namef, out_dirf)
     col1 = pn.Column(row1, fastq_dirf, group_filef, ref_filef, button, result, width=800)
 
