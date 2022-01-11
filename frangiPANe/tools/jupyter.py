@@ -72,6 +72,35 @@ def init_log(output_dir, project_name):
     display_alert(text, at)
     return logger
 
+def add_variable(file2save, key, value):
+    # get variables stored into the file
+    file = open(file2save, 'rb')
+    variables = pickle.load(file)
+    # print(variables)
+    variables[key] = value
+    file.close()
+
+    # add variables and save into the file
+    file = open(file2save, 'wb')
+    pickle.dump(variables, file)
+    file.close()
+
+def print_variables(file2read):
+    file = open(file2read, 'rb')
+    variables = pickle.load(file)
+    print(variables)
+    file.close()
+
+def get_variables(file2read, key):
+    file = open(file2read, 'rb')
+    variables = pickle.load(file)
+    #print(variables)
+    file.close()
+
+    value=0
+    if key in variables:
+        value = variables[key]
+    return value
 
 def add_css():
 
@@ -115,6 +144,7 @@ def box_config():
     print_btn = pn.widgets.Button(name='SAVE', width=100, button_type='primary')
     init_btn = pn.widgets.Button(name='INIT', width=100, button_type='primary')
     load_btn = pn.widgets.Button(name='LOAD', width=100, button_type='primary')
+
     # form
     project_namef = pn.widgets.TextInput(name='Project name :', placeholder='Enter the name here...')
     out_dirf = pn.widgets.TextInput(name='Output directory :', placeholder='Enter the directory path here...')
@@ -144,7 +174,7 @@ def box_config():
         variables = pickle.load(file)
         project_namef.value = variables["project_name"]
         out_dirf.value = variables["out_dir"]
-        fastq_dirf.value = variables["ref_file"]
+        fastq_dirf.value = variables["fastq_dir"]
         group_filef.value = variables["group_file"]
         ref_filef.value = variables["ref_file"]
         file.close()
