@@ -247,7 +247,7 @@ def fastq2bam(reference, fastq_file, cpu, bam_dir, logger):
     sam_file = bam_dir + read_group + ".sam"
     bam_file = bam_dir + read_group + ".bam"
 
-    if not os.path.exists(bam_file):
+    if not os.path.exists(bam_file) :
 
         cmd1 = f'bwa mem -M -t {cpu} {reference} {fastq_file} {fastq2_file} -o {sam_file}'
         process1 = subprocess.run(cmd1, shell=True, capture_output=True, text=True)
