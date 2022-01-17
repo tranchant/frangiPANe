@@ -278,7 +278,7 @@ def fastq2bam(reference, fastq_file, cpu, bam_dir, logger):
             display_alert(text, at)
         else:
             at = 'success'
-            text = f"Sort bam file executed successfully ({bam_file})"
+            text = f"Sort bam file  successfully executed ({bam_file})"
             display_alert(text, at)
             os.remove(sam_file)
         logger.info(f"\t\t\tLog samtools sort : {process2.stdout + process2.stderr}")
@@ -289,37 +289,38 @@ def fastq2bam(reference, fastq_file, cpu, bam_dir, logger):
         display_alert(text, at)
 
 
-def fastq_to_bam(reference_genome, fastq_dir, id, cpu, output_dir,logger):
+#def fastq_to_bam(reference_genome, fastq_dir, id, cpu, output_dir,logger):
 
-    logger.info(f"\t\tread group: {id}")
-    sam_file = output_dir+id+".sam"
-    bam_file = output_dir+id+".bam"
+#    logger.info(f"\t\tread group: {id}")
+#    sam_file = output_dir+id+".sam"
+#    bam_file = output_dir+id+".bam"
 
-    display(msg_button(f"MAPPING STEP FOR ({id})... bwa mem in progress", 'blue', 'classic'))
-    cmd1= f'bwa mem -p -M -t { cpu } { reference_genome}  { fastq_dir+"/"+id+".fastq" } -o { sam_file}'
-    process1 = subprocess.run(cmd1, shell=True, capture_output=True, text=True)
-    logger.info(f"\t\t\tbwa mem cmd : {cmd1}")
+#    display(f"MAPPING STEP FOR ({id})... bwa mem in progress",'secondary'))
+#    cmd1= f'bwa mem -p -M -t { cpu } { reference_genome}  { fastq_dir+"/"+id+".fastq" } -o { sam_file}'
+#    process1 = subprocess.run(cmd1, shell=True, capture_output=True, text=True)
+#    logger.info(f"\t\t\tbwa mem cmd : {cmd1}")
 
-    if process1.returncode:
-        log = f'FAILED EXECUTION : {cmd1} {process1.stdout} { process1.stderr}'
-        display(msg_button(log, 'warning', 'warning'))
-        logger.info(f"\t\t\tLog bwa mem : {process1.stdout + process1.stderr}")
-    else:
-        display(msg_button(f"SUCCESSFUL MAPPING: {id}\n {cmd1}", 'green', 'classic'))
-        logger.info(f"\t\t\tLog bwa mem : {process1.stdout + process1.stderr}")
+#    if process1.returncode:
+#        text = f'FAILED EXECUTION : {cmd1} {process1.stdout} { process1.stderr}'
+#        at = 'danger'
+#        display(text,at)
+#        logger.info(f"\t\t\tLog bwa mem : {process1.stdout + process1.stderr}")
+#    else:
+#        display(f"SUCCESSFUL MAPPING: {id}\n {cmd1}", 'success'))
+#        logger.info(f"\t\t\tLog bwa mem : {process1.stdout + process1.stderr}")
 
-        display(msg_button(f"MAPPING STEP FOR ({id})... samtools sort in progress", 'blue', 'classic'))
-        cmd2 = f'samtools sort {sam_file} -@ {cpu} -o {bam_file} '
-        process2 = subprocess.run(cmd2, shell=True, capture_output=True, text=True)
-        logger.info(f"\t\t\tsamtools cmd : {cmd2}")
+#        display(msg_button(f"MAPPING STEP FOR ({id})... samtools sort in progress", 'blue', 'classic'))
+#        cmd2 = f'samtools sort {sam_file} -@ {cpu} -o {bam_file} '
+#        process2 = subprocess.run(cmd2, shell=True, capture_output=True, text=True)
+#        logger.info(f"\t\t\tsamtools cmd : {cmd2}")
 
-        if process2.returncode:
-            log = f'FAILED EXECUTION : {cmd2} {process2.stdout} {process2.stderr}'
-            display(msg_button(log, 'warning', 'warning'))
-        else:
-            display(msg_button(f"SUCCESSFUL SAM TO BAM: {id} {cmd2}", 'green', 'classic'))
-            os.remove(sam_file)
-        logger.info(f"\t\t\tLog bwa mem : {process2.stdout + process2.stderr}")
+#       if process2.returncode:
+#            log = f'FAILED EXECUTION : {cmd2} {process2.stdout} {process2.stderr}'
+#            display(msg_button(log, 'warning', 'warning'))
+#        else:
+#            display(msg_button(f"SUCCESSFUL SAM TO BAM: {id} {cmd2}", 'green', 'classic'))
+#            os.remove(sam_file)
+#        logger.info(f"\t\t\tLog bwa mem : {process2.stdout + process2.stderr}")
 
 
 def samtools_flagstat(bam_name, stat_dir, logger):
@@ -330,18 +331,26 @@ def samtools_flagstat(bam_name, stat_dir, logger):
     text=f"Generating mapping stat (with samtools flagstat) for {bam}..."
     display_alert(text, "secondary")
 
-    cmd = f'samtools flagstat {bam_name} > {stat_file}'
-    process = subprocess.run(cmd, shell=True, capture_output=True, text=True)
-    logger.info(f"\t\t\tsamtools cmd : {cmd}")
+    if not os.path.exists(stat_file):
 
-    if process.returncode:
-        text = f"Failed execution ({bam}).... see log file, resolve the problem and try again"
-        at = 'danger'
+        cmd = f'samtools flagstat {bam_name} > {stat_file}'
+        process = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+        logger.info(f"\t\t\tsamtools cmd : {cmd}")
+
+        if process.returncode:
+            text = f"Failed execution ({bam}).... see log file, resolve the problem and try again"
+            at = 'danger'
+        else:
+            at = 'success'
+            text = f"samtools flagstat executed successfully ({os.path.basename(stat_file)})"
+
+        logger.info(f"\t\t\tLog samtools : {process.stdout + process.stderr}")
+        display_alert(text, at)
     else:
-        at = 'success'
-        text = f"samtools flagstat executed successfully ({os.path.basename(stat_file)})"
-    logger.info(f"\t\t\tLog samtools : {process.stdout + process.stderr}")
-    display_alert(text, at)
+        text = f"Stat previously executed for ({bam})"
+        at = 'warning'
+        display_alert(text, at)
+
 
 
 def merge_flagstat(output_dir, logger):
