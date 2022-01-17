@@ -24,6 +24,7 @@ RUN mkdir /data/ \
 
 RUN apt install -y ea-utils bwa samtools
 RUN apt install -y abyss cd-hit
+RUN apt install -y ncbi-blast+ ncbi-tools-bin
 
 RUN conda install -c bioconda assembly-stats
 
