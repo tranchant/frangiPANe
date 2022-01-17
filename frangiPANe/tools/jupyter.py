@@ -131,6 +131,7 @@ def display_alert(text, at):
 
 def box_config():
 
+
     # cmd result
     text = "No filled"
     at = 'warning'
@@ -154,7 +155,6 @@ def box_config():
         fastq_dirf.value = ""
         group_filef.value = ""
         ref_filef.value = ""
-
 
         at = 'danger'
         text = f"""

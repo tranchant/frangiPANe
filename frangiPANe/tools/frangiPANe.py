@@ -447,7 +447,6 @@ def abyss_pe(project_name, id, k, bam_dir, output_dir, logger):
     if check_file(test_file) == True : 
         display_alert(f"File {test_file} already existed", 'warning')
     else :
-
         bam = id + "_F0x2.bam"
         display_alert(f"Assembly for {bam} ({k}) in progress...",'secondary')
         cmd = f'abyss-pe -C {output_abyss_dir} name={project_name}_{id}_{str(k)} k={k} in={bam_dir}{bam}'
@@ -472,7 +471,7 @@ def filter_fastq_threshold(file, output_file, threshold):
 
     from Bio import SeqIO
     if check_file(output_file) == True : 
-        display(f"File {output_file} already existed",  'warning')
+        display_alert(f"File {output_file} already existed",  'warning')
     else :
         with open(output_file, 'w') as o :
             for seq in SeqIO.parse(file, "fasta"):
@@ -490,6 +489,7 @@ def filter_fastq_threshold(file, output_file, threshold):
 
 
 def def_stats():
+
     stat_len = ["total_length"]
     stats_N_hide = ["mean_length", "longest", "n10", "n20", "n30", "n40"]
     stats_N = ["shortest", "n50", "n60", "n70", "n80", "n90"]
@@ -618,7 +618,7 @@ def cdhit(contigs, c, s, cdhit_file, logger):
     cmd = f"cd-hit-est -c {c} -s {s} -i {contigs} -o {cdhit_file}  "
 
     process = subprocess.run(cmd, shell=True, capture_output=True, text=True)
-    logger.info(f"\t\t\tscdhit cmd : {cmd}")
+    logger.info(f"\t\t\tcdhit cmd : {cmd}")
 
     if process.returncode:
         text = f"Clustering Failed.... see log file, resolve the problem and try again"
