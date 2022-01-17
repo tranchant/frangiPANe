@@ -247,24 +247,27 @@ def fastq2bam(reference, fastq_file, cpu, bam_dir, logger):
     sam_file = bam_dir + read_group + ".sam"
     bam_file = bam_dir + read_group + ".bam"
 
-    cmd1 = f'bwa mem -M -t {cpu} {reference} {fastq_file} {fastq2_file} -o {sam_file}'
-    process1 = subprocess.run(cmd1, shell=True, capture_output=True, text=True)
-    logger.info(f"\t\t\tbwa mem cmd : {cmd1}")
+    if not os.path.exists(bam_file):
 
-    if process1.returncode:
-        text = f"Failed execution ({read_group}).... see log file, resolve the problem and try again"
-        at='danger'
-        display_alert(text, at)
-        logger.info(f"\t\t\tLog bwa mem : {process1.stdout + process1.stderr}\n")
-    else:
-        at = 'success'
-        text = f"bwa mem executed successfully ({sam_file})"
-        display_alert(text, at)
-        logger.info(f"\t\t\tLog bwa mem : {process1.stdout + process1.stderr}\n")
+        cmd1 = f'bwa mem -M -t {cpu} {reference} {fastq_file} {fastq2_file} -o {sam_file}'
+        process1 = subprocess.run(cmd1, shell=True, capture_output=True, text=True)
+        logger.info(f"\t\t\tbwa mem cmd : {cmd1}")
+
+        if process1.returncode:
+            text = f"Failed execution ({read_group}).... see log file, resolve the problem and try again"
+            at='danger'
+            display_alert(text, at)
+            logger.info(f"\t\t\tLog bwa mem : {process1.stdout + process1.stderr}\n")
+        else:
+            at = 'success'
+            text = f"bwa mem executed successfully ({sam_file})"
+            display_alert(text, at)
+            logger.info(f"\t\t\tLog bwa mem : {process1.stdout + process1.stderr}\n")
 
         #display(msg_button(f"MAPPING STEP FOR ({read_group})... samtools sort in progress", 'blue', 'classic'))
         text = f"Sort bam file in progress for {read_group}..."
         display_alert(text, "secondary")
+
         cmd2 = f'samtools sort {sam_file} -@ {cpu} -o {bam_file} '
         process2 = subprocess.run(cmd2, shell=True, capture_output=True, text=True)
         logger.info(f"\t\t\tsamtools cmd : {cmd2}")
@@ -279,6 +282,11 @@ def fastq2bam(reference, fastq_file, cpu, bam_dir, logger):
             display_alert(text, at)
             os.remove(sam_file)
         logger.info(f"\t\t\tLog samtools sort : {process2.stdout + process2.stderr}")
+
+    else:
+        text = f"Mapping previously runned for ({bam_file})"
+        at = 'warning'
+        display_alert(text, at)
 
 
 def fastq_to_bam(reference_genome, fastq_dir, id, cpu, output_dir,logger):
