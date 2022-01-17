@@ -30,8 +30,8 @@ import param
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-
-
+# save variables into a file
+file_load = 'frangiPANe.p'
 
 @register_cell_magic
 def bgc(color, cell=None):
@@ -76,14 +76,14 @@ def add_variable(file2save, key, value):
     # get variables stored into the file
     file = open(file2save, 'rb')
     variables = pickle.load(file)
-    # print(variables)
-    variables[key] = value
     file.close()
+    variables[key] = value
 
     # add variables and save into the file
-    file = open(file2save, 'wb')
-    pickle.dump(variables, file)
-    file.close()
+    file2 = open(file2save, 'wb')
+    pickle.dump(variables, file2)
+    file2.close()
+
 
 def print_variables(file2read):
     file = open(file2read, 'rb')
@@ -94,7 +94,6 @@ def print_variables(file2read):
 def get_variables(file2read, key):
     file = open(file2read, 'rb')
     variables = pickle.load(file)
-    #print(variables)
     file.close()
 
     value=0
@@ -132,9 +131,6 @@ def display_alert(text, at):
 
 def box_config():
 
-    # save variables into a file
-    file_load = 'frangiPANe.p'
-
     # cmd result
     text = "No filled"
     at = 'warning'
@@ -158,6 +154,7 @@ def box_config():
         fastq_dirf.value = ""
         group_filef.value = ""
         ref_filef.value = ""
+
 
         at = 'danger'
         text = f"""

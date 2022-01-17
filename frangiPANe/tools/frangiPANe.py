@@ -109,19 +109,26 @@ def fastq_stats(fastq_file, stat_dir, logger):
     file = os.path.basename(fastq_file)
     stat_file = stat_dir + file + ".fastqstat"
 
-    text=f"In progress for {file}..."
-    display_alert(text, "secondary")
-    cmd = f'fastq-stats -D {fastq_file} > {stat_file}'
-    process = subprocess.run(cmd, shell=True, capture_output=True, text=True)
-    logger.info(f"\t\t\tfastq-stats cmd : {cmd}")
+    if not os.path.exists(stat_file):
 
-    if process.returncode:
-        text = f"Failed execution ({file}).... see log file, resolve the problem and try again"
-        at='danger'
+        text = f"In progress for {file}..."
+        display_alert(text, "secondary")
+
+        cmd = f'fastq-stats -D {fastq_file} > {stat_file}'
+        process = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+        logger.info(f"\t\t\tfastq-stats cmd : {cmd}")
+
+        if process.returncode:
+            text = f"Failed execution ({file}).... see log file, resolve the problem and try again"
+            at='danger'
+        else:
+            at = 'success'
+            text = f"fastq_stats executed successfully ({stat_file})"
+        logger.info(f"\t\t\tLog fastq-stats : {process.stdout + process.stderr}")
     else:
-        at = 'success'
-        text = f"fastq_stats executed successfully ({stat_file})"
-    logger.info(f"\t\t\tLog fastq-stats : {process.stdout + process.stderr}")
+        text = f"Fastq stats previously runned for ({stat_file})"
+        at = 'warning'
+
     display_alert(text, at)
 
 
