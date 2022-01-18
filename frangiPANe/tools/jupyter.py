@@ -148,6 +148,7 @@ def box_config():
     fastq_dirf = pn.widgets.TextInput(name='Fastq directory', placeholder='Enter the directory path here...')
     group_filef = pn.widgets.TextInput(name='Group file', placeholder='Enter the file path here...')
     ref_filef = pn.widgets.TextInput(name='Reference file', placeholder='Enter the file path here...')
+    cpu_pf = pn.widgets.IntSlider(name='CPU number', start=1, end=36, step=1, value=6)
 
     def reinit_form(event):
         project_namef.value = ""
@@ -155,6 +156,7 @@ def box_config():
         fastq_dirf.value = ""
         group_filef.value = ""
         ref_filef.value = ""
+        cpu_pf.value = 6
 
         at = 'danger'
         text = f"""
@@ -174,6 +176,7 @@ def box_config():
         fastq_dirf.value = variables["fastq_dir"]
         group_filef.value = variables["group_file"]
         ref_filef.value = variables["ref_file"]
+        cpu_pf.value = variables["cpu"]
         file.close()
 
         text = "empty"
@@ -185,6 +188,7 @@ def box_config():
         fastq_dir = fastq_dirf.value.rstrip('\s')
         group_file = group_filef.value.rstrip('\s')
         ref_file = ref_filef.value.rstrip('\s')
+        cpu = cpu_pf.value
 
         if not output_dir or not project_name or not fastq_dir or not group_file or not ref_file:
             at = 'danger'
@@ -196,6 +200,7 @@ def box_config():
     * FASTQ DIRECTORY : {fastq_dir}
     * GROUP FILE : {group_file}
     * REFERENCE FILE : {ref_file}
+    * CPU : {cpu}
     
     """
 
@@ -219,6 +224,7 @@ def box_config():
     * FASTQ DIRECTORY : {fastq_dir}
     * GROUP FILE : {group_file}
     * REFERENCE FILE : {ref_file}
+    * CPU : {cpu}
     
     """
             variables = {
@@ -226,7 +232,8 @@ def box_config():
                             "out_dir": output_dir,
                             "ref_file": ref_file,
                             "group_file": group_file,
-                            "fastq_dir": fastq_dir
+                            "fastq_dir": fastq_dir,
+                            "cpu": cpu
                          }
             #print(variables)
 
@@ -243,13 +250,13 @@ def box_config():
 
     button = pn.Row(print_btn, load_btn, init_btn)
     row1 = pn.Row(project_namef, out_dirf)
-    col1 = pn.Column(row1, fastq_dirf, group_filef, ref_filef, button, result, width=800)
+    col1 = pn.Column(row1, fastq_dirf, group_filef, ref_filef, cpu_pf, button, result, width=800)
 
     # box
     tab=pn.WidgetBox('# INPUT FORM', col1, background='#E3ECF1')
     display(tab)
 
-    return project_namef, out_dirf, ref_filef, group_filef, fastq_dirf
+    return project_namef, out_dirf, ref_filef, group_filef, fastq_dirf, cpu_pf
 
 
 def dashboard_genome(reference_genome):
