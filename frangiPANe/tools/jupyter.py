@@ -562,7 +562,7 @@ def box_config_abyss(df):
     step = pn.widgets.IntInput(name='Step', value=4, step=1, start=1, end=10)
     threshold = pn.widgets.IntInput(name='Minimal length to filter', value=300, step=100, start=100, end=10000)
 
-    accession = pn.widgets.MultiSelect(name='Accession', options=list(df_sorted['sample']), size=4)
+    accession = pn.widgets.MultiSelect(name='Accession', options=list(df_sorted['sample']), value=[df_sorted['sample'][0], df_sorted['sample'][1]], size=4)
 
     def print_value(event):
         at = 'success'
