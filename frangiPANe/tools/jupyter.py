@@ -590,7 +590,7 @@ def box_config_abyss(df):
         k.value = (64, 68)
         accession.value = list()
         step.value = 4
-        treshold.value = 300
+        threshold.value = 300
         text = "empty"
         return
 
