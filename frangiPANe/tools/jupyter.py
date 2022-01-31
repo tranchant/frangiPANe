@@ -587,7 +587,7 @@ def box_config_abyss(df):
         return
 
     def reinit_form(event):
-        ki.value = (64, 68)
+        k.value = (64, 68)
         accession.value = list()
         step.value = 4
         treshold.value = 300
