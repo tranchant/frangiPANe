@@ -671,7 +671,6 @@ def dashboard_ab(stat_l, stat_N, stat_L, diri):
     plt.figure()
     size_N = sns.relplot(x='k', y='value', hue='stat', data=stats_N_df, col='id', kind="line")
     size_N.set(ylabel="N", xlabel="kmer")
-    # size_N.savefig(diri + "stat_N.png")
     plt.close()
 
     table_l = f"""| TL assembled  |  |\n|:---|:---:|\n"""

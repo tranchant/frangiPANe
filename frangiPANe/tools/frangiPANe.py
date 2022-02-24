@@ -485,15 +485,15 @@ def filter_fastq_threshold(file, output_file, threshold):
     else :
         with open(output_file, 'w') as o :
             for seq in SeqIO.parse(file, "fasta"):
-                if len(seq) >= threshold :
+                if len(seq) >= threshold:
                     o.write('>' + str(seq.description) + '\n')
                     txt = str(seq.seq)
                     lines = txt.split('\n')
-                    for line in lines :
-                        if len(line) > 0 :
+                    for line in lines:
+                        if len(line) > 0:
                             if line[0] == '>' :
                                 o.write(line + '\n')
-                            else :
+                            else:
                                 o.write(format_60(line) + '\n')
 
 
