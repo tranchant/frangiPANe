@@ -510,12 +510,12 @@ def def_stats():
     return(stat_len, stats_N_hide, stats_N, stats_L_hide, stats_L, stats_gap, stats)
 
 
-#def create_stats_files(stats, output_dir) :
-#    header = ["id", "k", "stat", "value"]
-#    for stat in stats :
-#        output_file = output_dir + "assembly-stats-" + stat + ".csv"
-#        with open(output_file, 'w') as o :
-#            o.write('\t'.join(header) + '\n')
+def create_stats_files(stats, output_dir) :
+    header = ["id", "k", "stat", "value"]
+    for stat in stats :
+        output_file = output_dir + "assembly-stats-" + stat + ".csv"
+        with open(output_file, 'w') as o :
+            o.write('\t'.join(header) + '\n')
 
 
 def fill_stats_files(input_dir, id, k, output_dir, threshold, logger) :
