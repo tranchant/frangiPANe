@@ -353,6 +353,44 @@ def samtools_flagstat(bam_name, stat_dir, logger):
 
 
 
+def bam_to_F0x2_bam_dir(bam_dir, id_dict, cpu, output_dir, logger):
+
+    for id in id_dict:
+        bam = bam_dir + id + ".bam"
+        new_bam = output_dir + id + "_F0x2.bam"
+
+        if check_file(new_bam) == True :
+            text=f"File {new_bam} already existed"
+            display_alert(text, 'warning')
+        else:
+            display_alert(f"Filtering {bam} in progress...", 'secondary')
+            cmd = f'samtools view -b -h -F 0x2 -o {new_bam} -@ {cpu} {bam}'
+            process = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+            logger.info(f"\t\t\tsamtools view cmd : {cmd}")
+
+            if process.returncode:
+                log = f'FAILED EXECUTION : {cmd}\n{process.stdout}\n{process.stderr}'
+                display_alert(log, 'danger')
+            else:
+                display_alert(f"Filtering bam executed sucessfully", 'success')
+
+            if len(process.stdout) > 0 :
+                logger.info(f"\t\t\tLog samtools view (STDOUT): {process.stdout}")
+            if len(process.stderr) > 0 :
+                logger.info(f"\t\t\tLog samtools view (STDERR): {process.stderr}")
+            if len(process.stdout) == 0 and len(process.stderr) == 0 :
+                logger.info(f"\t\t\tLog samtools view : ok")
+
+
+    text = f"""### Extracting unmapped reads
+<hr>
+* BAM DIR : {bam_dir}
+* FILTERED BAM DIR : {output_dir}
+"""
+
+    display_alert(text, "success")
+
+
 def merge_flagstat(output_dir, logger):
 
     stat_file = output_dir + "all_flagstat.csv"
@@ -391,44 +429,6 @@ def merge_flagstat(output_dir, logger):
     at = 'success'
     text = f"Compiling successfully done. See {stat_file}"
     display_alert(text, at)
-
-
-def bam_to_F0x2_bam_dir(bam_dir, id_dict, cpu, output_dir, logger):
-
-    for id in id_dict:
-        bam = bam_dir + id + ".bam"
-        new_bam = output_dir + id + "_F0x2.bam"
-
-        if check_file(new_bam) == True :
-            text=f"File {new_bam} already existed"
-            display_alert(text, 'warning')
-        else:
-            display_alert(f"Filtering {bam} in progress...", 'secondary')
-            cmd = f'samtools view -b -h -F 0x2 -o {new_bam} -@ {cpu} {bam}'
-            process = subprocess.run(cmd, shell=True, capture_output=True, text=True)
-            logger.info(f"\t\t\tsamtools view cmd : {cmd}")
-
-            if process.returncode:
-                log = f'FAILED EXECUTION : {cmd}\n{process.stdout}\n{process.stderr}'
-                display_alert(log, 'danger')
-            else:
-                display_alert(f"Filtering bam executed sucessfully", 'success')
-
-            if len(process.stdout) > 0 :
-                logger.info(f"\t\t\tLog samtools view (STDOUT): {process.stdout}")
-            if len(process.stderr) > 0 :
-                logger.info(f"\t\t\tLog samtools view (STDERR): {process.stderr}")
-            if len(process.stdout) == 0 and len(process.stderr) == 0 :
-                logger.info(f"\t\t\tLog samtools view : ok")
-
-
-    text = f"""### Extracting unmapped reads
-<hr>
-* BAM DIR : {bam_dir}
-* FILTERED BAM DIR : {output_dir}
-"""
-
-    display_alert(text, "success")
 
 
 def format_60(txt):
