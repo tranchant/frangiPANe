@@ -86,8 +86,8 @@ def index_reference_genome(file, logger):
             break
         else :
             cpt_test_files += 1 # Avoid to get 1 notification per suffix tested
-        
-    if cpt_test_files == len(suffixes) : 
+
+    if cpt_test_files == len(suffixes) :
         text = f"Index files already available ({file}).... Skip Indexation Step"
         at='warning'
     else:
@@ -434,11 +434,11 @@ def merge_flagstat(output_dir, logger):
 def format_60(txt):
     output = ''
     cpt = 0
-    for c in txt : 
-        if cpt < 60 : 
+    for c in txt :
+        if cpt < 60 :
             output += c
-            cpt += 1 
-        else : 
+            cpt += 1
+        else :
             output += '\n' + c
             cpt = 1
     return(output)
@@ -447,16 +447,17 @@ def format_60(txt):
 def check_file(file):
     import os.path
     from os import path
-    return(path.isfile(file))        
+    return(path.isfile(file))
 
 
 def abyss_pe(project_name, id, k, bam_dir, output_dir, logger):
-    output_abyss_dir = output_dir + id + "_k" + str(k) + "/"
+    output_abyss_dir = os.path.join(output_dir, id + "_k" + str(k) )
     make_dir(output_abyss_dir)
     test_file = output_abyss_dir + project_name + '_' + id + '_' + str(k) + "-contigs.fa"
-    if check_file(test_file) == True : 
+
+    if check_file(test_file) == True:
         display_alert(f"File {test_file} already existed", 'warning')
-    else :
+    else:
         bam = id + "_F0x2.bam"
         display_alert(f"Assembly for {bam} ({k}) in progress...",'secondary')
         cmd = f'abyss-pe -C {output_abyss_dir} name={project_name}_{id}_{str(k)} k={k} in={bam_dir}{bam}'
@@ -469,18 +470,18 @@ def abyss_pe(project_name, id, k, bam_dir, output_dir, logger):
         else:
             display_alert(f"Abyss successfully executed",'success')
 
-        if len(process.stdout) > 0 :
-            logger.info(f"\t\t\tLog ABySS (STDOUT): {process.stdout}") 
-        if len(process.stderr) > 0 : 
+        if len(process.stdout) > 0:
+            logger.info(f"\t\t\tLog ABySS (STDOUT): {process.stdout}")
+        if len(process.stderr) > 0:
             logger.info(f"\t\t\tLog ABySS (STDERR): {process.stderr}")
-        if len(process.stdout) == 0 and len(process.stderr) == 0 :
+        if len(process.stdout) == 0 and len(process.stderr) == 0:
             logger.info(f"\t\t\tLog ABySS : ok")
 
 
 def filter_fastq_threshold(file, output_file, threshold):
 
     from Bio import SeqIO
-    if check_file(output_file) == True : 
+    if check_file(output_file) == True :
         display_alert(f"File {output_file} already existed",  'warning')
     else :
         with open(output_file, 'w') as o :
@@ -491,7 +492,7 @@ def filter_fastq_threshold(file, output_file, threshold):
                     lines = txt.split('\n')
                     for line in lines:
                         if len(line) > 0:
-                            if line[0] == '>' :
+                            if line[0] == '>':
                                 o.write(line + '\n')
                             else:
                                 o.write(format_60(line) + '\n')
@@ -539,21 +540,21 @@ def parse_assembly_stats_adapted(file, logger):
     else:
         display_alert(f"assembly-stats successfully done ({file})", 'success')
     if len(process.stdout) > 0 :
-        logger.info(f"\t\t\tLog assembly-stats (STDOUT): {process.stdout}") 
-    if len(process.stderr) > 0 : 
+        logger.info(f"\t\t\tLog assembly-stats (STDOUT): {process.stdout}")
+    if len(process.stderr) > 0 :
         logger.info(f"\t\t\tLog assembly-stats (STDERR): {process.stderr}")
     if len(process.stdout) == 0 and len(process.stderr) == 0 :
         logger.info(f"\t\t\tLog assembly-stats : ok")
-    
+
     input = process.stdout.split('\n')
     stats = {}
-    for line in input : 
-        if len(line) > 0 : 
+    for line in input :
+        if len(line) > 0 :
             fields = line.split('\t') # [0] fasta, [1] stat, [2] val
             stats[fields[1]] = fields[2]
     return stats
 
-# def parse_assembly_stats(file) : 
+# def parse_assembly_stats(file) :
 #     input = !assembly-stats -s $file
 #     stats = []
 #     for line in input : 
