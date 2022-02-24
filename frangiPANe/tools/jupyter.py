@@ -658,7 +658,7 @@ def dashboard_ab(stat_l, stat_N, stat_L, diri):
 
     table_ln = f"""| Total length assembled  |  |\n|:---|:---:|\n"""
     plt.figure()  #
-    size_ln = sns.relplot(x='k', y='value', hue='stat', data=stat_len_df, col='id', kind="line").set(title='Length')
+    size_ln = sns.relplot(x='k', y='value', hue='stat', data=stat_len_df, col='id', kind="line")
     size_ln.set(ylabel="Ln", xlabel="kmer")
     plt.close()
 
@@ -669,7 +669,7 @@ def dashboard_ab(stat_l, stat_N, stat_L, diri):
 
     stats_N_df = pd.concat([pd.read_csv(f, sep='\t') for f in stats_N_files], ignore_index=True)
     plt.figure()
-    size_N = sns.relplot(x='k', y='value', hue='stat', data=stats_N_df, col='id', kind="line").set(title='Num')
+    size_N = sns.relplot(x='k', y='value', hue='stat', data=stats_N_df, col='id', kind="line")
     size_N.set(ylabel="N", xlabel="kmer")
     # size_N.savefig(diri + "stat_N.png")
     plt.close()
@@ -681,7 +681,7 @@ def dashboard_ab(stat_l, stat_N, stat_L, diri):
     stats_L_df = pd.concat([pd.read_csv(f, sep='\t') for f in stats_L_files], ignore_index=True)
 
     plt.figure()
-    size_L = sns.relplot(x='k', y='value', hue='stat', data=stats_L_df, col='id', kind="line").set(title='Length')
+    size_L = sns.relplot(x='k', y='value', hue='stat', data=stats_L_df, col='id', kind="line")
     size_L.set(ylabel="L", xlabel="kmer")
     plt.close()
     # size_L.savefig(diri + "stat_L.png")
