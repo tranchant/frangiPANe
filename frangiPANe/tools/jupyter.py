@@ -651,6 +651,52 @@ def box_config_abyss2():
     return k
 
 
+def dashboard_ab(stat_l, stat_N, stat_L, diri):
+    stat_len_df = pd.read_csv(diri + "assembly-stats-" + stat_l[0] + ".csv", sep='\t')
+
+    sns.set_style("darkgrid")
+
+    table_ln = f"""| Total length assembled  |  |\n|:---|:---:|\n"""
+    plt.figure()  #
+    size_ln = sns.relplot(x='k', y='value', hue='stat', data=stat_len_df, col='id', kind="line").set(title='Length')
+    size_ln.set(ylabel="Ln", xlabel="kmer")
+    plt.close()
+
+    table_n = f"""| N assembled  |  |\n|:---|:---:|\n"""
+    stats_N_files = []
+    for stat in stat_N:
+        stats_N_files.append(diri + "assembly-stats-" + stat + ".csv")
+
+    stats_N_df = pd.concat([pd.read_csv(f, sep='\t') for f in stats_N_files], ignore_index=True)
+    plt.figure()
+    size_N = sns.relplot(x='k', y='value', hue='stat', data=stats_N_df, col='id', kind="line").set(title='Num')
+    size_N.set(ylabel="N", xlabel="kmer")
+    # size_N.savefig(diri + "stat_N.png")
+    plt.close()
+
+    table_l = f"""| TL assembled  |  |\n|:---|:---:|\n"""
+    stats_L_files = []
+    for stat in stat_L:
+        stats_L_files.append(diri + "assembly-stats-" + stat + ".csv")
+    stats_L_df = pd.concat([pd.read_csv(f, sep='\t') for f in stats_L_files], ignore_index=True)
+
+    plt.figure()
+    size_L = sns.relplot(x='k', y='value', hue='stat', data=stats_L_df, col='id', kind="line").set(title='Length')
+    size_L.set(ylabel="L", xlabel="kmer")
+    plt.close()
+    # size_L.savefig(diri + "stat_L.png")
+
+    dashboard_title = '# Some statistics about abyss assembly'
+    dashboard = pn.Column(dashboard_title,
+                          pn.Row(pn.pane.Markdown(table_ln)),
+                          pn.Row(size_ln.figure, width=800),
+                          pn.Row(pn.pane.Markdown(table_n)),
+                          pn.Row(size_N.figure, width=800),
+                          pn.Row(pn.pane.Markdown(table_l)),
+                          pn.Row(size_L.figure, width=800),
+                          sizing_mode='stretch_both', background='WhiteSmoke', width=800).servable()
+    display(dashboard)
+
 
 def dashboard_cdhit(df_cdhit):
     df_cdhit['pb'] = df_cdhit['pb'].astype(int)
