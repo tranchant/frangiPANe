@@ -511,7 +511,7 @@ def create_stats_files(stats, output_dir) :
 
 def fill_stats_files(input_dir, id, k, output_dir, threshold, logger) :
 
-    fasta=id + "_k" + str(k) + "_thr" + str(threshold) + ".fasta"
+    fasta=id + "_k" + str(k) + "_thr" + str(threshold) + "-contigs.fasta"
     stat_dict = parse_assembly_stats_adapted(os.path.join(input_dir,fasta) , logger)
     for stat in stat_dict :
         with open(os.path.join(output_dir,"assembly-stats-" + stat + ".csv"), 'a') as o :
