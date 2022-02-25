@@ -107,7 +107,7 @@ def index_reference_genome(file, logger):
 def fastq_stats(fastq_file, stat_dir, logger):
 
     file = os.path.basename(fastq_file)
-    stat_file = stat_dir + file + ".fastqstat"
+    stat_file = os.path.join(stat_dir,file + ".fastqstat")
 
     if not os.path.exists(stat_file):
 
@@ -193,15 +193,7 @@ def merge_fastqstat(stat_file, stat_dir,logger):
             for line in stat:
                 line = line.rstrip()
                 newLine += line.split('\t')[1] + "\t"
-                #if 'total' in line.split('\t')[0]:
-                    #if sample not in total_base:
-                    #    total_base[sample] = 0
-                    #total_base[sample] += int(line.split('\t')[1])
         f.write(newLine + "\n")
-
-    #total_base_value = list(total_base.values())
-    #sample = [*total_base]
-    #return total_base_value, sample
 
 
 def fastq2bam_dir(reference, fastq_dir, df, cpu, bam_dir, logger):
@@ -244,8 +236,8 @@ def fastq2bam(reference, fastq_file, cpu, bam_dir, logger):
     display_alert(text, "secondary")
 
     fastq2_file = fastq_file.replace("1.f", "2.f")
-    sam_file = bam_dir + read_group + ".sam"
-    bam_file = bam_dir + read_group + ".bam"
+    sam_file = os.path.join(bam_dir,read_group + ".sam")
+    bam_file = os.path.join(bam_dir, read_group + ".bam")
 
     if not os.path.exists(bam_file) :
 
@@ -264,7 +256,6 @@ def fastq2bam(reference, fastq_file, cpu, bam_dir, logger):
             display_alert(text, at)
             logger.info(f"\t\t\tLog bwa mem : {process1.stdout + process1.stderr}\n")
 
-        #display(msg_button(f"MAPPING STEP FOR ({read_group})... samtools sort in progress", 'blue', 'classic'))
         text = f"Sort bam file in progress for {read_group}..."
         display_alert(text, "secondary")
 
@@ -326,7 +317,7 @@ def fastq2bam(reference, fastq_file, cpu, bam_dir, logger):
 def samtools_flagstat(bam_name, stat_dir, logger):
 
     bam = os.path.basename(bam_name)
-    stat_file = stat_dir + bam + ".samtoolsFlagstat"
+    stat_file = os.path.join(stat_dir, bam + ".samtoolsFlagstat")
 
     text=f"Generating mapping stat (with samtools flagstat) for {bam}..."
     display_alert(text, "secondary")
@@ -352,12 +343,11 @@ def samtools_flagstat(bam_name, stat_dir, logger):
         display_alert(text, at)
 
 
-
 def bam_to_F0x2_bam_dir(bam_dir, id_dict, cpu, output_dir, logger):
 
     for id in id_dict:
-        bam = bam_dir + id + ".bam"
-        new_bam = output_dir + id + "_F0x2.bam"
+        bam = os.path.join(bam_dir, id + ".bam")
+        new_bam = os.path.join(output_dir, id + "_F0x2.bam")
 
         if check_file(new_bam) == True :
             text=f"File {new_bam} already existed"
@@ -381,7 +371,6 @@ def bam_to_F0x2_bam_dir(bam_dir, id_dict, cpu, output_dir, logger):
             if len(process.stdout) == 0 and len(process.stderr) == 0 :
                 logger.info(f"\t\t\tLog samtools view : ok")
 
-
     text = f"""### Extracting unmapped reads
 <hr>
 * BAM DIR : {bam_dir}
@@ -393,7 +382,7 @@ def bam_to_F0x2_bam_dir(bam_dir, id_dict, cpu, output_dir, logger):
 
 def merge_flagstat(output_dir, logger):
 
-    stat_file = output_dir + "all_flagstat.csv"
+    stat_file = os.path.join(output_dir,"all_flagstat.csv")
 
     if os.path.exists(stat_file):
         os.remove(stat_file)
@@ -443,7 +432,6 @@ def format_60(txt):
             cpt = 1
     return(output)
 
-
 def check_file(file):
     import os.path
     from os import path
@@ -451,16 +439,18 @@ def check_file(file):
 
 
 def abyss_pe(project_name, id, k, bam_dir, output_dir, logger):
+
+    tag=project_name + '_' + id + '_' + str(k)
     output_abyss_dir = os.path.join(output_dir, id + "_k" + str(k) )
     make_dir(output_abyss_dir)
-    test_file = output_abyss_dir + project_name + '_' + id + '_' + str(k) + "-contigs.fa"
+    test_file = os.path.join(output_abyss_dir, tag + "-contigs.fa")
 
     if check_file(test_file) == True:
         display_alert(f"File {test_file} already existed", 'warning')
     else:
-        bam = id + "_F0x2.bam"
+        bam = os.path.join(bam_dir,id + "_F0x2.bam")
         display_alert(f"Assembly for {bam} ({k}) in progress...",'secondary')
-        cmd = f'abyss-pe -C {output_abyss_dir} name={project_name}_{id}_{str(k)} k={k} in={bam_dir}{bam}'
+        cmd = f'abyss-pe -C {output_abyss_dir} name={tag} k={k} in={bam}'
         logger.info(f"\t\t\tABySS cmd : {cmd}")
         process = subprocess.run(cmd, shell=True, capture_output=True, text=True)
 
@@ -514,15 +504,17 @@ def def_stats():
 def create_stats_files(stats, output_dir) :
     header = ["id", "k", "stat", "value"]
     for stat in stats :
-        output_file = output_dir + "assembly-stats-" + stat + ".csv"
+        output_file = os.path.join(output_dir, "assembly-stats-" + stat + ".csv")
         with open(output_file, 'w') as o :
             o.write('\t'.join(header) + '\n')
 
 
 def fill_stats_files(input_dir, id, k, output_dir, threshold, logger) :
-    stat_dict = parse_assembly_stats_adapted(input_dir + id + "_k" + str(k) + "_thr" + str(threshold) + ".fasta", logger)
+
+    fasta=id + "_k" + str(k) + "_thr" + str(threshold) + ".fasta"
+    stat_dict = parse_assembly_stats_adapted(os.path.join(input_dir,fasta) , logger)
     for stat in stat_dict :
-        with open(output_dir + "assembly-stats-" + stat + ".csv", 'a') as o :
+        with open(os.path.join(output_dir,"assembly-stats-" + stat + ".csv"), 'a') as o :
             o.write('\t'.join([id, str(k)]) + '\t' + '\t'.join([stat, stat_dict[stat]]) + '\n')
 
 
