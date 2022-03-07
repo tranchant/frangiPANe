@@ -29,7 +29,6 @@ from tools.jupyter import display_alert
 
 
 def make_dir(path):
-
     if not os.path.exists(path):
         os.makedirs(path)
         at = "success"
@@ -37,15 +36,14 @@ def make_dir(path):
 
     else:
         at = "warning"
-        text = f"""### {at }
+        text = f"""### {at}
 <hr>
 Directory {path} already existed"""
 
-    display_alert(text,at)
+    display_alert(text, at)
 
 
 def read_group_file(file, logger):
-
     df_group = pd.read_csv(file, names=["sample", "Species"], index_col=False, sep="\t")
     id_dict = {}
     for line in open(file).readlines():
@@ -61,17 +59,16 @@ def read_group_file(file, logger):
 
 
 def index_reference_genome(file, logger):
-
     suffixes = [".amb", ".ann", ".bwt", ".pac", ".sa"]
     logger.info(f"CHECKING REFERENCE FILE :")
     logger.info(f"\t\tFasta : {file}")
-    text=f"Searching index files for reference file {file}"
+    text = f"Searching index files for reference file {file}"
     display_alert(text, "info")
     cpt_test_files = 0
     for suffix in suffixes:
         tested_file = file + suffix
         if not path.exists(tested_file):
-            text=f"Indexation in progress with bwa index..."
+            text = f"Indexation in progress with bwa index..."
             display_alert(text, "secondary")
             cmd = f'bwa index {file}'
             logger.info(f"\t\tbwa index cmd : {cmd}")
@@ -81,17 +78,17 @@ def index_reference_genome(file, logger):
                 log = f'FAILED EXECUTION : {cmd}\n{process.stdout}\n{process.stderr}'
                 raise ValueError(log)
             else:
-                #display(msg_button(f"SUCCESSFUL INDEXATION: {cmd}", 'green', 'classic'))
+                # display(msg_button(f"SUCCESSFUL INDEXATION: {cmd}", 'green', 'classic'))
                 logger.info(f"\t\tLog : {process.stdout + process.stderr}\n")
             break
-        else :
-            cpt_test_files += 1 # Avoid to get 1 notification per suffix tested
+        else:
+            cpt_test_files += 1  # Avoid to get 1 notification per suffix tested
 
-    if cpt_test_files == len(suffixes) :
+    if cpt_test_files == len(suffixes):
         text = f"Index files already available ({file}).... Skip Indexation Step"
-        at='warning'
+        at = 'warning'
     else:
-        at='success'
+        at = 'success'
         text = f"""
 ### indexation with bwa index Successful 
 
@@ -105,9 +102,8 @@ def index_reference_genome(file, logger):
 
 
 def fastq_stats(fastq_file, stat_dir, logger):
-
     file = os.path.basename(fastq_file)
-    stat_file = os.path.join(stat_dir,file + ".fastqstat")
+    stat_file = os.path.join(stat_dir, file + ".fastqstat")
 
     if not os.path.exists(stat_file):
 
@@ -120,7 +116,7 @@ def fastq_stats(fastq_file, stat_dir, logger):
 
         if process.returncode:
             text = f"Failed execution ({file}).... see log file, resolve the problem and try again"
-            at='danger'
+            at = 'danger'
         else:
             at = 'success'
             text = f"fastq_stats executed successfully ({stat_file})"
@@ -133,7 +129,6 @@ def fastq_stats(fastq_file, stat_dir, logger):
 
 
 def fastq_stats_dir(fastq_dir, stat_dir, df, logger):
-
     make_dir(stat_dir)
 
     logger.info(f"FASTQ STAT :")
@@ -156,7 +151,6 @@ def fastq_stats_dir(fastq_dir, stat_dir, df, logger):
                 at = 'warning'
                 display_alert(text, at)
 
-
     text = f"""
     ### All stat files generated successfully with fastq-stat
 
@@ -169,8 +163,7 @@ def fastq_stats_dir(fastq_dir, stat_dir, df, logger):
     display_alert(text, "success")
 
 
-def merge_fastqstat(stat_file, stat_dir,logger):
-
+def merge_fastqstat(stat_file, stat_dir, logger):
     if os.path.exists(stat_file):
         os.remove(stat_file)
 
@@ -189,7 +182,7 @@ def merge_fastqstat(stat_file, stat_dir,logger):
         sample = file_base.split('_')[0]
         newLine = f"{sample}\t{file_base}\t"
 
-        with open(os.path.join(stat_dir,file_name), "r") as stat:
+        with open(os.path.join(stat_dir, file_name), "r") as stat:
             for line in stat:
                 line = line.rstrip()
                 newLine += line.split('\t')[1] + "\t"
@@ -197,7 +190,6 @@ def merge_fastqstat(stat_file, stat_dir,logger):
 
 
 def fastq2bam_dir(reference, fastq_dir, df, cpu, bam_dir, logger):
-
     make_dir(bam_dir)
 
     logger.info(f"\nMAPPING STEP :")
@@ -213,7 +205,7 @@ def fastq2bam_dir(reference, fastq_dir, df, cpu, bam_dir, logger):
             read_group = file_name.split("_")[0]
 
             if read_group in df['sample'].values:
-                fastq2bam(reference, os.path.join(fastq_dir, file_name), cpu,bam_dir, logger)
+                fastq2bam(reference, os.path.join(fastq_dir, file_name), cpu, bam_dir, logger)
 
     text = f"""
     ### Mapping step done with bwa mem and samtools sort
@@ -228,18 +220,17 @@ def fastq2bam_dir(reference, fastq_dir, df, cpu, bam_dir, logger):
 
 
 def fastq2bam(reference, fastq_file, cpu, bam_dir, logger):
-
     file_name = os.path.basename(fastq_file)
     read_group = file_name.split("_")[0]
 
-    text=f"Mapping in progress for {read_group}..."
+    text = f"Mapping in progress for {read_group}..."
     display_alert(text, "secondary")
 
     fastq2_file = fastq_file.replace("1.f", "2.f")
-    sam_file = os.path.join(bam_dir,read_group + ".sam")
+    sam_file = os.path.join(bam_dir, read_group + ".sam")
     bam_file = os.path.join(bam_dir, read_group + ".bam")
 
-    if not os.path.exists(bam_file) :
+    if not os.path.exists(bam_file):
 
         cmd1 = f'bwa mem -M -t {cpu} {reference} {fastq_file} {fastq2_file} -o {sam_file}'
         process1 = subprocess.run(cmd1, shell=True, capture_output=True, text=True)
@@ -247,7 +238,7 @@ def fastq2bam(reference, fastq_file, cpu, bam_dir, logger):
 
         if process1.returncode:
             text = f"Failed execution ({read_group}).... see log file, resolve the problem and try again"
-            at='danger'
+            at = 'danger'
             display_alert(text, at)
             logger.info(f"\t\t\tLog bwa mem : {process1.stdout + process1.stderr}\n")
         else:
@@ -280,7 +271,7 @@ def fastq2bam(reference, fastq_file, cpu, bam_dir, logger):
         display_alert(text, at)
 
 
-#def fastq_to_bam(reference_genome, fastq_dir, id, cpu, output_dir,logger):
+# def fastq_to_bam(reference_genome, fastq_dir, id, cpu, output_dir,logger):
 
 #    logger.info(f"\t\tread group: {id}")
 #    sam_file = output_dir+id+".sam"
@@ -315,11 +306,10 @@ def fastq2bam(reference, fastq_file, cpu, bam_dir, logger):
 
 
 def samtools_flagstat(bam_name, stat_dir, logger):
-
     bam = os.path.basename(bam_name)
     stat_file = os.path.join(stat_dir, bam + ".samtoolsFlagstat")
 
-    text=f"Generating mapping stat (with samtools flagstat) for {bam}..."
+    text = f"Generating mapping stat (with samtools flagstat) for {bam}..."
     display_alert(text, "secondary")
 
     if not os.path.exists(stat_file):
@@ -344,13 +334,12 @@ def samtools_flagstat(bam_name, stat_dir, logger):
 
 
 def bam_to_F0x2_bam_dir(bam_dir, id_dict, cpu, output_dir, logger):
-
     for id in id_dict:
         bam = os.path.join(bam_dir, id + ".bam")
         new_bam = os.path.join(output_dir, id + "_F0x2.bam")
 
-        if check_file(new_bam) == True :
-            text=f"File {new_bam} already existed"
+        if check_file(new_bam) == True:
+            text = f"File {new_bam} already existed"
             display_alert(text, 'warning')
         else:
             display_alert(f"Filtering {bam} in progress...", 'secondary')
@@ -364,11 +353,11 @@ def bam_to_F0x2_bam_dir(bam_dir, id_dict, cpu, output_dir, logger):
             else:
                 display_alert(f"Filtering bam executed sucessfully", 'success')
 
-            if len(process.stdout) > 0 :
+            if len(process.stdout) > 0:
                 logger.info(f"\t\t\tLog samtools view (STDOUT): {process.stdout}")
-            if len(process.stderr) > 0 :
+            if len(process.stderr) > 0:
                 logger.info(f"\t\t\tLog samtools view (STDERR): {process.stderr}")
-            if len(process.stdout) == 0 and len(process.stderr) == 0 :
+            if len(process.stdout) == 0 and len(process.stderr) == 0:
                 logger.info(f"\t\t\tLog samtools view : ok")
 
     text = f"""### Extracting unmapped reads
@@ -381,8 +370,7 @@ def bam_to_F0x2_bam_dir(bam_dir, id_dict, cpu, output_dir, logger):
 
 
 def merge_flagstat(output_dir, logger):
-
-    stat_file = os.path.join(output_dir,"all_flagstat.csv")
+    stat_file = os.path.join(output_dir, "all_flagstat.csv")
 
     if os.path.exists(stat_file):
         os.remove(stat_file)
@@ -423,33 +411,33 @@ def merge_flagstat(output_dir, logger):
 def format_60(txt):
     output = ''
     cpt = 0
-    for c in txt :
-        if cpt < 60 :
+    for c in txt:
+        if cpt < 60:
             output += c
             cpt += 1
-        else :
+        else:
             output += '\n' + c
             cpt = 1
-    return(output)
+    return (output)
+
 
 def check_file(file):
     import os.path
     from os import path
-    return(path.isfile(file))
+    return (path.isfile(file))
 
 
 def abyss_pe(project_name, id, k, bam_dir, output_dir, logger):
-
-    tag=project_name + '_' + id + '_' + str(k)
-    output_abyss_dir = os.path.join(output_dir, id + "_k" + str(k) )
+    tag = project_name + '_' + id + '_' + str(k)
+    output_abyss_dir = os.path.join(output_dir, id + "_k" + str(k))
     make_dir(output_abyss_dir)
     test_file = os.path.join(output_abyss_dir, tag + "-contigs.fa")
 
     if check_file(test_file) == True:
         display_alert(f"File {test_file} already existed", 'warning')
     else:
-        bam = os.path.join(bam_dir,id + "_F0x2.bam")
-        display_alert(f"Assembly for {bam} ({k}) in progress...",'secondary')
+        bam = os.path.join(bam_dir, id + "_F0x2.bam")
+        display_alert(f"Assembly for {bam} ({k}) in progress...", 'secondary')
         cmd = f'abyss-pe -C {output_abyss_dir} name={tag} k={k} in={bam}'
         logger.info(f"\t\t\tABySS cmd : {cmd}")
         process = subprocess.run(cmd, shell=True, capture_output=True, text=True)
@@ -458,7 +446,7 @@ def abyss_pe(project_name, id, k, bam_dir, output_dir, logger):
             log = f'FAILED EXECUTION : {cmd}\n{process.stdout}\n{process.stderr}'
             display_alert(log, 'warning')
         else:
-            display_alert(f"Abyss successfully executed",'success')
+            display_alert(f"Abyss successfully executed", 'success')
 
         if len(process.stdout) > 0:
             logger.info(f"\t\t\tLog ABySS (STDOUT): {process.stdout}")
@@ -469,12 +457,11 @@ def abyss_pe(project_name, id, k, bam_dir, output_dir, logger):
 
 
 def filter_fastq_threshold(file, output_file, threshold):
-
     from Bio import SeqIO
-    if check_file(output_file) == True :
-        display_alert(f"File {output_file} already existed",  'warning')
-    else :
-        with open(output_file, 'w') as o :
+    if check_file(output_file) == True:
+        display_alert(f"File {output_file} already existed", 'warning')
+    else:
+        with open(output_file, 'w') as o:
             for seq in SeqIO.parse(file, "fasta"):
                 if len(seq) >= threshold:
                     o.write('>' + str(seq.description) + '\n')
@@ -488,38 +475,34 @@ def filter_fastq_threshold(file, output_file, threshold):
                                 o.write(format_60(line) + '\n')
 
 
-
 def def_stats():
-
     stat_len = ["total_length"]
     stats_N_hide = ["mean_length", "longest", "n10", "n20", "n30", "n40"]
     stats_N = ["shortest", "n50", "n60", "n70", "n80", "n90"]
-    stats_L_hide = ["n20n",  "n30n", "n40n", "n60n", "n70n", "n80n"]
+    stats_L_hide = ["n20n", "n30n", "n40n", "n60n", "n70n", "n80n"]
     stats_L = ["n10n", "n50n", "n90n", "number"]
     stats_gap = ["N_count", "Gaps"]
     stats = stat_len + stats_N_hide + stats_N + stats_L_hide + stats_L + stats_gap
-    return(stat_len, stats_N_hide, stats_N, stats_L_hide, stats_L, stats_gap, stats)
+    return (stat_len, stats_N_hide, stats_N, stats_L_hide, stats_L, stats_gap, stats)
 
 
-def create_stats_files(stats, output_dir) :
+def create_stats_files(stats, output_dir):
     header = ["id", "k", "stat", "value"]
-    for stat in stats :
+    for stat in stats:
         output_file = os.path.join(output_dir, "assembly-stats-" + stat + ".csv")
-        with open(output_file, 'w') as o :
+        with open(output_file, 'w') as o:
             o.write('\t'.join(header) + '\n')
 
 
-def fill_stats_files(input_dir, id, k, output_dir, threshold, logger) :
-
-    fasta=id + "_k" + str(k) + "_thr" + str(threshold) + "-contigs.fasta"
-    stat_dict = parse_assembly_stats_adapted(os.path.join(input_dir,fasta) , logger)
-    for stat in stat_dict :
-        with open(os.path.join(output_dir,"assembly-stats-" + stat + ".csv"), 'a') as o :
+def fill_stats_files(input_dir, id, k, output_dir, threshold, logger):
+    fasta = id + "_k" + str(k) + "_thr" + str(threshold) + "-contigs.fasta"
+    stat_dict = parse_assembly_stats_adapted(os.path.join(input_dir, fasta), logger)
+    for stat in stat_dict:
+        with open(os.path.join(output_dir, "assembly-stats-" + stat + ".csv"), 'a') as o:
             o.write('\t'.join([id, str(k)]) + '\t' + '\t'.join([stat, stat_dict[stat]]) + '\n')
 
 
 def parse_assembly_stats_adapted(file, logger):
-
     cmd = f'assembly-stats -s {file}'
     text = f"Generating stat (with assembly-stats) for {file}..."
     display_alert(text, "secondary")
@@ -531,20 +514,21 @@ def parse_assembly_stats_adapted(file, logger):
         display_alert(log, 'warning')
     else:
         display_alert(f"assembly-stats successfully done ({file})", 'success')
-    if len(process.stdout) > 0 :
+    if len(process.stdout) > 0:
         logger.info(f"\t\t\tLog assembly-stats (STDOUT): {process.stdout}")
-    if len(process.stderr) > 0 :
+    if len(process.stderr) > 0:
         logger.info(f"\t\t\tLog assembly-stats (STDERR): {process.stderr}")
-    if len(process.stdout) == 0 and len(process.stderr) == 0 :
+    if len(process.stdout) == 0 and len(process.stderr) == 0:
         logger.info(f"\t\t\tLog assembly-stats : ok")
 
     input = process.stdout.split('\n')
     stats = {}
-    for line in input :
-        if len(line) > 0 :
-            fields = line.split('\t') # [0] fasta, [1] stat, [2] val
+    for line in input:
+        if len(line) > 0:
+            fields = line.split('\t')  # [0] fasta, [1] stat, [2] val
             stats[fields[1]] = fields[2]
     return stats
+
 
 # def parse_assembly_stats(file) :
 #     input = !assembly-stats -s $file
@@ -554,55 +538,181 @@ def parse_assembly_stats_adapted(file, logger):
 #         stats.append(fields[2])
 #     return(stats)
 
+def index_blast(db_file,logger):
 
-def copy_cluster(dir_abyss_ctg, dir_clustering):
+    suffixes = [".nhr", ".nin", ".nsq"]
+    logger.info(f"CHECKING BLAST INDEX FOR VECTOR BANK :")
+    logger.info(f"\t\tFasta : {db_file}")
+    text = f"Searching index files for reference file {db_file}"
+    display_alert(text, "info")
+    cpt_test_files = 0
 
+    for suffix in suffixes:
+        tested_file = db_file + suffix
+
+        if not path.exists(tested_file):
+            text = f"Indexation in progress with makeblastdb..."
+            display_alert(text, "secondary")
+            cmd = f"makeblastdb -in {db_file} -dbtype 'nucl' -blastdb_version 4"
+            logger.info(f"\t\tmakeblastdb cmd : {cmd}")
+            process = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+
+            if process.returncode:
+                log = f'FAILED EXECUTION : {cmd}\n{process.stdout}\n{process.stderr}'
+                raise ValueError(log)
+            else:
+                # display(msg_button(f"SUCCESSFUL INDEXATION: {cmd}", 'green', 'classic'))
+                logger.info(f"\t\tLog : {process.stdout + process.stderr}\n")
+            break
+        else:
+            cpt_test_files += 1  # Avoid to get 1 notification per suffix tested
+
+    if cpt_test_files == len(suffixes):
+        text = f"Index files already available ({db_file}).... Skip Indexation Step"
+        at = 'warning'
+    else:
+        at = 'success'
+        text = f"""
+### indexation with blast db index Successful 
+
+<hr>
+
+* BANK : {db_file}
+* COMMAND :  {cmd}
+* Log blast into log file
+"""
+    display_alert(text, at)
+
+
+def run_vecscreen(fasta_dir, id, k, threshold, output_dir, bank,logger):
+    from Bio import SeqIO
+
+    # print("--- id : " + id)
+    tag = id + "_k" + str(k) + "_thr" + str(threshold)
+    fasta_file = os.path.join(fasta_dir, tag + "-contigs.fasta")
+    output_file = os.path.join(output_dir, tag + '_vecscreen.fasta')
+
+    if path.exists(fasta_file) and not path.exists(output_file):
+
+        nb_seq, nb_seq_no_hits, nb_seq_suspicious = 0, 0, 0
+        text = f"VecScreen for {id} (k = {k}) in progress ..."
+        display_alert(text, "secondary")
+
+        with open(output_file, "w") as o:
+
+            for seq in SeqIO.parse(fasta_file, "fasta"):
+                # Vecscreen only works with fasta file, not sequence
+                tmp_file = output_dir + "tmp.fasta"
+
+                with open(tmp_file, "w") as tmp:
+                    tmp.write('>' + str(seq.description) + '\n')
+                    tmp.write(format_60(str(seq.seq)) + '\n')
+
+                cmd = f'vecscreen -d {bank} -i {tmp_file} -f 3'
+                process = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+                logger.info(f"\t\t\tvecscreen cmd : {cmd}")
+
+                if process.returncode:
+                    text = f"Failed execution ({cmd}).... see log file, resolve the problem and try again"
+                    at = 'danger'
+                else:
+                    at = 'success'
+                    text = f"vecscreen executed successfully ({os.path.basename(tmp_file)})"
+
+                    if 'No hits found' in process.stdout:
+                        o.write('>' + str(seq.description) + '\n')
+                        o.write(format_60(str(seq.seq)) + '\n')
+                        nb_seq += 1
+                        nb_seq_no_hits += 1
+                    else:
+                        # print(process.stdout)
+                        # print("Hits : >" + str(seq.description))
+                        nb_seq_suspicious += 1
+                        bounds = []
+                        for line in process.stdout.split("\n"):
+                            if len(line) > 0:
+                                if line[0].isnumeric():
+                                    for value in line.split('\t'):
+                                        bounds.append(int(value))
+                        min_seq = 0
+                        max_seq = len(seq)
+                        min_bounds = min(bounds)
+                        max_bounds = max(bounds)
+                        if min_bounds == min_seq + 1:
+                            min_seq = max_bounds
+                            new_length = max_seq - max_bounds
+                            if new_length >= threshold:
+                                header_fields = str(seq.description).split()
+                                o.write('>' + header_fields[0] + " " + str(new_length) + " " + " ".join(
+                                    header_fields[2:]) + '\n')
+                                o.write(format_60(str(seq.seq[min_seq:max_seq])) + '\n')
+                                nb_seq += 1
+                        elif max_bounds == max_seq:
+                            max_seq = min_bounds
+                            new_length = max_seq
+                            if new_length >= threshold:
+                                header_fields = str(seq.description).split()
+                                o.write('>' + header_fields[0] + " " + str(new_length) + " " + " ".join(
+                                    header_fields[2:]) + '\n')
+                                o.write(format_60(str(seq.seq[min_seq:max_seq])) + '\n')
+                                nb_seq += 1
+                        else:
+                            print("Warning (seq : " + str(
+                                seq.description) + ") : the detected contamination appears to be in the middle of the contig !")
+                    cmd = f'rm {tmp_file}'
+                    # process = f'subprocess.run(cmd, shell=True, capture_output=True, text=True)'
+
+        text = f"""
+        ### VecScreen
+        <hr>
+        * NO HITS : {nb_seq_no_hits}index_blast(vec_file.value)
+        * SUSPICIOUS : {nb_seq_suspicious}
+        * KEPT : {nb_seq}
+        """
+        display_alert(text, "success")
+
+
+def copy_cluster(dir_ctg, dir_clustering):
     text = f"Copying all contigs from each sample into dir_clustering on progress..."
     display_alert(text, "secondary")
 
-    for dirname in os.listdir(dir_abyss_ctg):
+    for filename in os.listdir(dir_ctg):
 
-        if os.path.isdir(dirname):
-            continue
+        # output_sample = os.path.join(dir_ctg, filename)
+        readgroup = filename.split('_')[0]
 
-        output_sample = os.path.join(dir_abyss_ctg, dirname)
-        readgroup = dirname.split('_')[0]
-        for filename in os.listdir(output_sample):
+        target = os.path.join(dir_clustering, filename)
+        shutil.copyfile(os.path.join(dir_ctg, filename), target)
 
-            if not "-contigs.fa" in filename:
-                continue
+        sedcmd = f"sed 's/>/>{readgroup}_/' {target} -i"
+        process = subprocess.run(sedcmd, shell=True, capture_output=True, text=True)
+        # logger.info(f"\t\t\tsed cmd : {sedcmd}")
 
-            target = os.path.join(dir_clustering, filename)
-            shutil.copyfile(os.path.join(output_sample, filename), target)
-
-            sedcmd = f"sed 's/>/>{readgroup}_/' {target} -i"
-            process = subprocess.run(sedcmd, shell=True, capture_output=True, text=True)
-            # logger.info(f"\t\t\tsed cmd : {sedcmd}")
-
-            if process.returncode:
-                text = f"Renaming Failed.... see log file, resolve the problem and try again"
-                at = 'danger'
-                display_alert(text, at)
+        if process.returncode:
+            text = f"Renaming Failed.... see log file, resolve the problem and try again"
+            at = 'danger'
+            display_alert(text, at)
 
     text = f"Copying all contigs into dir_clustering done"
     display_alert(text, "info")
 
 
 def merging_cluster(dir_clustering, contigs_file):
-
     if os.path.exists(contigs_file):
         os.remove(contigs_file)
 
-    merged = open(contigs_file, 'a+')
+    merged = open(contigs_file, 'w')
 
     text = f"Merging all contigs from each sample into one file... on progress"
     display_alert(text, "secondary")
 
     for filename in os.listdir(dir_clustering):
 
-        if not "-contigs.fa" in filename:
+        if "_allContigs.fa" in filename:
+            # print("...."+filename+"\n")
             continue
 
+        # print("----"+filename+"\n")
         fasta = open(os.path.join(dir_clustering, filename), 'r')
         merged.write(fasta.read())
         fasta.close()
@@ -610,9 +720,8 @@ def merging_cluster(dir_clustering, contigs_file):
 
     merged.close()
 
-    text = f"fasta file succesfully done {contigs_file}"
+    text = f"fasta file successfully done {contigs_file}"
     display_alert(text, "success")
-
 
 def cdhit(contigs, c, s, cdhit_file, logger):
     text = f"Clustering all contigs with cdhit-est.. on progress"
@@ -695,11 +804,11 @@ def parse_cdhit(cdhit_cluster, df_group, cdhit_csv):
 
     return df_cluster
 
-def samtools_index(bam_name, logger):
 
+def samtools_index(bam_name, logger):
     bam = os.path.basename(bam_name)
 
-    text=f"Bam indexing {bam}..."
+    text = f"Bam indexing {bam}..."
     display_alert(text, "secondary")
 
     cmd = f'samtools index {bam_name}'
