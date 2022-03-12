@@ -271,40 +271,6 @@ def fastq2bam(reference, fastq_file, cpu, bam_dir, logger):
         display_alert(text, at)
 
 
-# def fastq_to_bam(reference_genome, fastq_dir, id, cpu, output_dir,logger):
-
-#    logger.info(f"\t\tread group: {id}")
-#    sam_file = output_dir+id+".sam"
-#    bam_file = output_dir+id+".bam"
-
-#    display(f"MAPPING STEP FOR ({id})... bwa mem in progress",'secondary'))
-#    cmd1= f'bwa mem -p -M -t { cpu } { reference_genome}  { fastq_dir+"/"+id+".fastq" } -o { sam_file}'
-#    process1 = subprocess.run(cmd1, shell=True, capture_output=True, text=True)
-#    logger.info(f"\t\t\tbwa mem cmd : {cmd1}")
-
-#    if process1.returncode:
-#        text = f'FAILED EXECUTION : {cmd1} {process1.stdout} { process1.stderr}'
-#        at = 'danger'
-#        display(text,at)
-#        logger.info(f"\t\t\tLog bwa mem : {process1.stdout + process1.stderr}")
-#    else:
-#        display(f"SUCCESSFUL MAPPING: {id}\n {cmd1}", 'success'))
-#        logger.info(f"\t\t\tLog bwa mem : {process1.stdout + process1.stderr}")
-
-#        display(msg_button(f"MAPPING STEP FOR ({id})... samtools sort in progress", 'blue', 'classic'))
-#        cmd2 = f'samtools sort {sam_file} -@ {cpu} -o {bam_file} '
-#        process2 = subprocess.run(cmd2, shell=True, capture_output=True, text=True)
-#        logger.info(f"\t\t\tsamtools cmd : {cmd2}")
-
-#       if process2.returncode:
-#            log = f'FAILED EXECUTION : {cmd2} {process2.stdout} {process2.stderr}'
-#            display(msg_button(log, 'warning', 'warning'))
-#        else:
-#            display(msg_button(f"SUCCESSFUL SAM TO BAM: {id} {cmd2}", 'green', 'classic'))
-#            os.remove(sam_file)
-#        logger.info(f"\t\t\tLog bwa mem : {process2.stdout + process2.stderr}")
-
-
 def samtools_flagstat(bam_name, stat_dir, logger):
     bam = os.path.basename(bam_name)
     stat_file = os.path.join(stat_dir, bam + ".samtoolsFlagstat")
@@ -528,6 +494,7 @@ def parse_assembly_stats_adapted(file, logger):
             fields = line.split('\t')  # [0] fasta, [1] stat, [2] val
             stats[fields[1]] = fields[2]
     return stats
+
 
 
 # def parse_assembly_stats(file) :
