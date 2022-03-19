@@ -495,7 +495,30 @@ def parse_assembly_stats_adapted(file, logger):
             stats[fields[1]] = fields[2]
     return stats
 
+def fasta_stats(fasta_dir, stat_file, logger):
 
+    text = f"Generating abyss stat (with assembly-stat) for fasta files in {fasta_dir}..."
+    display_alert(text, "secondary")
+
+    if not os.path.exists(stat_file):
+
+        cmd = f'assembly-stats -t {fasta_dir}/*fasta > {stat_file}'
+        process = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+        logger.info(f"\t\t\tassembly-stats cmd : {cmd}")
+
+        if process.returncode:
+            text = f"Failed execution.... see log file, resolve the problem and try again"
+            at = 'danger'
+        else:
+            at = 'success'
+            text = f"stat executed successfully"
+
+        logger.info(f"\t\t\tLog assembly-stats : {process.stdout + process.stderr}")
+        display_alert(text, at)
+    else:
+        text = f"Stat previously executed with ({stat_file})"
+        at = 'warning'
+        display_alert(text, at)
 
 # def parse_assembly_stats(file) :
 #     input = !assembly-stats -s $file
@@ -761,6 +784,13 @@ def parse_cdhit(cdhit_cluster, df_group, cdhit_csv):
                     tag = ctg
                     sp = sp_tmp
                     # print(f"TAG : {tag} {sp}")
+
+    cluster[tag] = {
+        'pb': ln,
+        'sp': sp,
+        'ctg_list': ctg_list[:-1],
+        'sp_list': sp_list[:-1]
+    }
 
     # Save into  csv file
     # Create dataframe from dic and make keys, index in dataframe

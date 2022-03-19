@@ -17,13 +17,13 @@
 
 import ipywidgets as widgets
 
-from IPython.display import display,HTML
+from IPython.display import display, HTML
 from IPython.core.magic import register_cell_magic
 
 import pickle
 import pandas as pd
 import panel as pn
-import logging,os
+import logging, os
 from time import localtime, strftime
 
 import param
@@ -33,20 +33,20 @@ import seaborn as sns
 # save variables into a file
 file_load = 'frangiPANe.p'
 
+
 @register_cell_magic
 def bgc(color, cell=None):
     script = (
-            "var cell = this.closest('.jp-CodeCell');"
-            "var editor = cell.querySelector('.jp-Editor');"
-            "editor.style.background='{}';"
-            "this.parentNode.removeChild(this)"
+        "var cell = this.closest('.jp-CodeCell');"
+        "var editor = cell.querySelector('.jp-Editor');"
+        "editor.style.background='{}';"
+        "this.parentNode.removeChild(this)"
     ).format(color)
 
     display(HTML('<img src onerror="{}">'.format(script)))
 
 
 def init_log(output_dir, project_name):
-
     start_time = strftime("%d-%m-%Y_%H:%M:%S", localtime())
 
     log_file = f'frangiPANe_{project_name}-{start_time}.log'
@@ -72,6 +72,7 @@ def init_log(output_dir, project_name):
     display_alert(text, at)
     return logger
 
+
 def add_variable(file2save, key, value):
     # get variables stored into the file
     file = open(file2save, 'rb')
@@ -91,18 +92,19 @@ def print_variables(file2read):
     print(variables)
     file.close()
 
+
 def get_variables(file2read, key):
     file = open(file2read, 'rb')
     variables = pickle.load(file)
     file.close()
 
-    value=0
+    value = 0
     if key in variables:
         value = variables[key]
     return value
 
-def add_css():
 
+def add_css():
     from IPython.core.display import HTML
     css_warning = "<style>.mywarning { color:white ; font-size:100%; font-weight: bold;}"
     HTML("""
@@ -116,9 +118,9 @@ def add_css():
     """ + css_classic + """
     </style>
     """)
-    
-def widget_display(df):
 
+
+def widget_display(df):
     out = widgets.Output()
     with out:
         display(df)
@@ -130,8 +132,6 @@ def display_alert(text, at):
 
 
 def box_config():
-
-
     # cmd result
     text = "No filled"
     at = 'warning'
@@ -209,7 +209,7 @@ def box_config():
     
     """
 
-        elif not os.path.exists(fastq_dir) or not os.path.isdir(fastq_dir)  :
+        elif not os.path.exists(fastq_dir) or not os.path.isdir(fastq_dir):
             text = f"### WARNING : Directory doesn't exist or is not a directory : {fastq_dir} "
 
         elif not os.path.exists(group_file) or not os.path.isfile(group_file):
@@ -237,15 +237,15 @@ def box_config():
     
     """
             variables = {
-                            "project_name": project_name,
-                            "out_dir": output_dir,
-                            "ref_file": ref_file,
-                            "vec_file": vec_file,
-                            "group_file": group_file,
-                            "fastq_dir": fastq_dir,
-                            "cpu": cpu
-                         }
-            #print(variables)
+                "project_name": project_name,
+                "out_dir": output_dir,
+                "ref_file": ref_file,
+                "vec_file": vec_file,
+                "group_file": group_file,
+                "fastq_dir": fastq_dir,
+                "cpu": cpu
+            }
+            # print(variables)
 
             file = open(file_load, 'wb')
             pickle.dump(variables, file)
@@ -263,14 +263,17 @@ def box_config():
     col1 = pn.Column(row1, fastq_dirf, group_filef, ref_filef, vec_filef, cpu_pf, button, result, width=800)
 
     # box
-    tab=pn.WidgetBox('# INPUT FORM', col1, background='#E3ECF1')
+    tab = pn.WidgetBox('# INPUT FORM', col1, background='#E3ECF1')
     display(tab)
 
     return project_namef, out_dirf, ref_filef, vec_filef, group_filef, fastq_dirf, cpu_pf
 
 
-def dashboard_genome(reference_genome):
+def convert_mb(size):
+    return round(size / 1000000, 2)
 
+
+def dashboard_genome(reference_genome):
     from Bio import SeqIO
 
     #  list to collect for each chromosome, chromosome size
@@ -315,7 +318,6 @@ def dashboard_genome(reference_genome):
 
 
 def dashboard_group(df):
-
     pn.extension()
 
     # create a class containing an species selector drop-down, various plots, and a data table output
@@ -332,7 +334,7 @@ def dashboard_group(df):
         # seaborn box plot for the chosen animal
         def box_view(self):
             data = df
-            plt.figure()#figsize=(4, 3))
+            plt.figure()  # figsize=(4, 3))
             ax = sns.countplot(y=data['Species'], palette="hls")
             plt.close()
             return ax.figure
@@ -342,8 +344,8 @@ def dashboard_group(df):
             data = self.get_data()
             return data
 
-    species_list=df.Species.unique().tolist()
-    stat = f"## Samples : {df['sample'].count()} \n#### Group : { ' '.join(species_list) }\n "
+    species_list = df.Species.unique().tolist()
+    stat = f"## Samples : {df['sample'].count()} \n#### Group : {' '.join(species_list)}\n "
 
     # create an instance of the class
     rd = GroupDashboard(name='')
@@ -371,9 +373,7 @@ def dashboard_group(df):
     dashboard.embed()
 
 
-
-def dashboard_fastq(csv,total_size,df_group):
-
+def dashboard_fastq(csv, total_size, df_group):
     col_list = ["sample", "file", "reads", "len", "len_mean", "len_min", "qual_min", "qual_max", "qual_mean", "%A",
                 "%C", "%G", "%T", "%N", "total_bases"]
     df_fastq_stat = pd.read_csv(csv, index_col=False, sep="\t", usecols=col_list)
@@ -391,7 +391,7 @@ def dashboard_fastq(csv,total_size,df_group):
 
     # Plot total bases pb by sample
     df_merge = df_stat_merged.groupby('sample')['total_bases'].sum()
-    plt.figure()#figsize=(10, 5))
+    plt.figure()  # figsize=(10, 5))
     total = df_merge.plot(kind='bar', color='#66C2A5')
     total.set(xlabel="sample", ylabel="Total (Mb)")
     total.set_title("Total pb sequenced by sample")
@@ -409,7 +409,7 @@ def dashboard_fastq(csv,total_size,df_group):
 
     # Coverage
     df_merge = df_stat_merged.groupby('sample')['total_bases'].sum().div(total_size)
-    plt.figure()#figsize=(10, 5))
+    plt.figure()  # figsize=(10, 5))
     x = df_merge.plot(kind='bar', color='#66C2A5')
     x.set(xlabel="sample", ylabel="X")
     x.set_title("Sequencing coverage by sample")
@@ -425,7 +425,7 @@ def dashboard_fastq(csv,total_size,df_group):
 
     # Plot length read
     # df_read = df_stat_merged[["file","len_min","len","len_mean"]]
-    plt.figure()#figsize=(10, 5))
+    plt.figure()  # figsize=(10, 5))
     read = sns.scatterplot(x='file', y='len_mean', data=df_stat_merged, linewidth=2, palette="colorblind")
     read.set(xlabel="file", ylabel="read length (pb)")
     read.set_title("Read length over samples")
@@ -437,7 +437,7 @@ def dashboard_fastq(csv,total_size,df_group):
 
     # Plot quality
     # df_qual = df_fstat_merged[["file","qual_min","qual_max","qual_mean"]]
-    plt.figure()#figsize=(10, 5))
+    plt.figure()  # figsize=(10, 5))
     qual = sns.scatterplot(x='file', y='qual_mean', data=df_stat_merged, linewidth=2.5, palette="bright")
     qual.set(xlabel="file", ylabel="qual mean")
     qual.set_title("Quality mean over samples")
@@ -449,7 +449,7 @@ def dashboard_fastq(csv,total_size,df_group):
 
     # Plot base ratio
     df_ratio = df_stat_merged[["file", "%A", "%C", "%G", "%T", "%N"]]
-    plt.figure()#figsize=(10, 5))
+    plt.figure()  # figsize=(10, 5))
     base = sns.lineplot(x='file', y='value', hue='variable', data=pd.melt(df_ratio, 'file'),
                         linewidth=2, markersize=8, palette="hls", marker='o', linestyle='dashed')
     base.set(xlabel="file", ylabel="base ratio")
@@ -464,13 +464,16 @@ def dashboard_fastq(csv,total_size,df_group):
     row1 = pn.Row()
     dashboard_title = '# Some statistics about fastq files'
     dashboard = pn.Column(dashboard_title,
-                        pn.Row(total_desc, pn.Spacer(sizing_mode='stretch_both', width=100),pn.pane.Markdown(table_sp),width=800),
-                        pn.Row(pn.pane.Markdown(table), pn.Spacer(sizing_mode='stretch_both', width=100), total.figure, width=800),
-                        pn.Row(total_x, pn.Spacer(sizing_mode='stretch_both', width=100), x.figure, width=800),
-                        pn.Row(read_desc, pn.Spacer(sizing_mode='stretch_both', width=100), read.figure, width=800),
-                        pn.Row(qual_desc, pn.Spacer(sizing_mode='stretch_both', width=100), qual.figure, width=800),
-                        pn.Row(base_desc, pn.Spacer(sizing_mode='stretch_both', width=100), base.figure, width=800),
-                        pn.panel(df_short, width=800), sizing_mode='stretch_both', background='WhiteSmoke', width=800).servable()
+                          pn.Row(total_desc, pn.Spacer(sizing_mode='stretch_both', width=100),
+                                 pn.pane.Markdown(table_sp), width=800),
+                          pn.Row(pn.pane.Markdown(table), pn.Spacer(sizing_mode='stretch_both', width=100),
+                                 total.figure, width=800),
+                          pn.Row(total_x, pn.Spacer(sizing_mode='stretch_both', width=100), x.figure, width=800),
+                          pn.Row(read_desc, pn.Spacer(sizing_mode='stretch_both', width=100), read.figure, width=800),
+                          pn.Row(qual_desc, pn.Spacer(sizing_mode='stretch_both', width=100), qual.figure, width=800),
+                          pn.Row(base_desc, pn.Spacer(sizing_mode='stretch_both', width=100), base.figure, width=800),
+                          pn.panel(df_short, width=800), sizing_mode='stretch_both', background='WhiteSmoke',
+                          width=800).servable()
 
     display(dashboard)
 
@@ -491,8 +494,14 @@ def format_stat(min, max, mean):
     # return f"| over sample | {cat} | {mean} | {min}  | {max} |\n"
 
 
-def dashboard_flagstat(stat_file,df_group):
+def format_stat_int(min, max, mean):
+    return f"""<br />\n
+* min - max : {int(min)} - {int(max)}
+* mean : {int(mean)}"""
+    # return f"| over sample | {cat} | {mean} | {min}  | {max} |\n"
 
+
+def dashboard_flagstat(stat_file, df_group):
     df_bam_stat = pd.read_csv(stat_file, index_col=False, sep=",")
     df_bam_stat.sort_values(by=['sample'], inplace=True)
 
@@ -521,7 +530,7 @@ def dashboard_flagstat(stat_file,df_group):
     unmapped_desc = format_stat(unmapped_min, unmapped_max, unmapped_mean)
     unmapped_desc_sp = group_stat(df_stat_merged, 'Species', 'UNMAPPED')
 
-    plt.figure()#figsize=(12, 5))
+    plt.figure()  # figsize=(12, 5))
     ratio = sns.scatterplot(x='sample', y='value', hue='variable', data=pd.melt(df_bam_stat, 'sample'))
     ratio.set(xlabel="sample", ylabel="ratio")
     ratio.set_title("Read mapped ratio ")
@@ -579,7 +588,8 @@ def box_config_abyss(df):
     step = pn.widgets.IntInput(name='Step', value=4, step=1, start=1, end=10)
     threshold = pn.widgets.IntInput(name='Minimal length to filter', value=300, step=100, start=100, end=10000)
 
-    accession = pn.widgets.MultiSelect(name='Accession', options=list(df_sorted['sample']), value=[df_sorted['sample'][0], df_sorted['sample'][1]], size=4)
+    accession = pn.widgets.MultiSelect(name='Accession', options=list(df_sorted['sample']),
+                                       value=[df_sorted['sample'][0], df_sorted['sample'][1]], size=4)
 
     def print_value(event):
         at = 'success'
@@ -615,7 +625,7 @@ def box_config_abyss(df):
     tab = pn.WidgetBox('# INPUT FORM', col1, background='#E3ECF1')
     display(tab)
 
-    return k,step,accession,threshold
+    return k, step, accession, threshold
 
 
 def box_config_abyss2():
@@ -675,7 +685,7 @@ def dashboard_ab(stat_l, stat_N, stat_L, diri):
     table_n = f"""| N assembled  |  |\n|:---|:---:|\n"""
     stats_N_files = []
     for stat in stat_N:
-        stats_N_files.append(os.path.join(diri,"assembly-stats-" + stat + ".csv"))
+        stats_N_files.append(os.path.join(diri, "assembly-stats-" + stat + ".csv"))
 
     stats_N_df = pd.concat([pd.read_csv(f, sep='\t') for f in stats_N_files], ignore_index=True)
     plt.figure()
@@ -686,7 +696,7 @@ def dashboard_ab(stat_l, stat_N, stat_L, diri):
     table_l = f"""| TL assembled  |  |\n|:---|:---:|\n"""
     stats_L_files = []
     for stat in stat_L:
-        stats_L_files.append(os.path.join(diri,"assembly-stats-" + stat + ".csv"))
+        stats_L_files.append(os.path.join(diri, "assembly-stats-" + stat + ".csv"))
     stats_L_df = pd.concat([pd.read_csv(f, sep='\t') for f in stats_L_files], ignore_index=True)
 
     plt.figure()
@@ -703,6 +713,110 @@ def dashboard_ab(stat_l, stat_N, stat_L, diri):
                           pn.Row(size_N.figure, width=800),
                           pn.Row(pn.pane.Markdown(table_l)),
                           pn.Row(size_L.figure, width=800),
+                          sizing_mode='stretch_both', background='WhiteSmoke', width=800).servable()
+    display(dashboard)
+
+
+def dashboard_assembly(stat_file, df_group):
+
+    # read stat file
+    df_stat = pd.read_csv(stat_file, index_col=False, sep="\t")
+
+    # extract  sample name from the column "filename"
+    df_stat['sample'] = df_stat.filename.apply(lambda x: os.path.basename(x))
+    df_stat['sample'] = df_stat['sample'].str.split('_', expand=True)[0]
+
+    # Merge the dataframes "stat" and "group" into a new dataframe
+    df_stat_merged = pd.merge(left=df_stat, right=df_group, left_on='sample', right_on='sample')
+    df_stat_merged = df_stat_merged[
+        ["sample", "number", "mean_length", "shortest", "longest", "total_length", "Species"]]
+    df_stat_merged.sort_values(by=['sample'], inplace=True)
+
+    ctg_min, ctg_max, ctg_mean = stat(df_stat_merged, 'number')
+    pb_min, pb_max, pb_mean = stat(df_stat_merged, 'total_length')
+    ctg_pb_mean = df_stat_merged.mean_length.mean()
+    ctg_pb_max = df_stat_merged.longest.max()
+    ctg_pb_min = df_stat_merged.shortest.min()
+    df_stat_merged = df_stat_merged.rename(
+        columns={"number": "Contigs number", "shortest": "Shortest (pb)", "longest": "Longuest (pb)",
+                 "total_length": "total_length (pb)"})
+
+    # Stat contigs numbers
+    ctg_title = "<br /><hr><br />\n### Contigs number"
+    ctg_desc = format_stat_int(ctg_min, ctg_max, ctg_mean)
+    ctg_desc_sp = group_stat(df_stat_merged, 'Species', 'Contigs number')
+
+    # Stat contigs length
+    ctg_pb_title = f"<br /><hr><br />\n### Contigs size"
+    ctg_pb_desc = format_stat(convert_mb(pb_min), convert_mb(pb_max), convert_mb(pb_mean))
+    ctg_pb_sp = group_stat(df_stat_merged, 'Species', 'total_length (pb)')
+
+    # Stat contogh length  ctg_pb_mean
+    ctg_ln_title = f"<br /><hr><br />\n### Contigs length"
+    ctg_ln_desc = format_stat_int(ctg_pb_min, ctg_pb_max, ctg_pb_mean)
+
+    # plt.figure()#figsize=(12, 5))
+    # ratio = sns.scatterplot(x='sample', y='value', hue='variable', data=pd.melt(df_stat_merged, 'sample'))
+    # ratio.set(xlabel="sample", ylabel="Contigs number")
+    # ratio.set_title("Contigs number")
+    # plt.legend(bbox_to_anchor=(1.01, 1), borderaxespad=0);
+    # plt.close()
+
+    from io import StringIO
+
+    groups = pn.widgets.MultiChoice(
+        name='Group', options=list(df_stat_merged.Species.unique()), margin=(0, 20, 0, 0)
+    )
+    samples = pn.widgets.MultiChoice(
+        name='Sample', options=list(df_stat_merged['sample']), margin=(0, 20, 0, 0)
+    )
+
+    @pn.depends(groups, samples)
+    def filtered_smp(grp, smp):
+        df = df_stat_merged.sort_values(by=['sample'], inplace=True)
+        if groups.value:
+            df = df_stat_merged[df_stat_merged.Species.isin(grp)]
+        if samples.value:
+            df = df_stat_merged[df_stat_merged['sample'].isin(smp)]
+        return df
+
+    dashboard_title = '# Some statistics about abyss step'
+    dashboard = pn.Column(dashboard_title,
+                          ctg_title,
+                          pn.Row(ctg_desc, pn.panel(ctg_desc_sp, width=400)),
+                          ctg_pb_title,
+                          pn.Row(ctg_pb_desc, pn.panel(ctg_pb_sp, width=400)),
+                          ctg_ln_title,
+                          pn.Row(ctg_ln_desc),
+                          pn.Row(groups, samples),
+                          pn.panel(filtered_smp, width=800, max_height=600, scroll=True),
+                          sizing_mode='stretch_both', background='WhiteSmoke', width=800).servable()
+    display(dashboard)
+
+
+def dashboard_ass(stat_file, df_group):
+    # read stat file
+    df_stat = pd.read_csv(stat_file, index_col=False, sep="\t")
+    # print(df_stat)
+
+    ctg_num = df_stat.number.iloc[0]
+    pb_tot = df_stat.total_length.iloc[0]
+    ctg_pb_mean = df_stat.mean_length.iloc[0]
+    ctg_pb_max = df_stat.longest.iloc[0]
+    ctg_pb_min = df_stat.shortest.iloc[0]
+
+    #print(ctg_pb_max)
+    # Stat contigs numbers
+    ctg_title = f"<br /><hr><br />\n### Contigs number : {ctg_num} ({convert_mb(pb_tot)} Mb)"
+
+    # Stat contogh length  ctg_pb_mean
+    ctg_ln_title = f"<br /><hr><br />\n### Contigs length : "
+    ctg_ln_desc = format_stat_int(ctg_pb_min, ctg_pb_max, ctg_pb_mean)
+
+    dashboard_title = '# Some statistics'
+    dashboard = pn.Column(dashboard_title,
+                          ctg_title,
+                          pn.Row(ctg_ln_desc),
                           sizing_mode='stretch_both', background='WhiteSmoke', width=800).servable()
     display(dashboard)
 
@@ -768,3 +882,4 @@ def dashboard_cdhit(df_cdhit):
                           # pn.panµel(filtered_smp, width=400, max_height=400, scroll=True),
                           sizing_mode='stretch_both', background='WhiteSmoke', width=800).servable()
     display(dashboard)
+
