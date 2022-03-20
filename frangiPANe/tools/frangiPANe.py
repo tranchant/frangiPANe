@@ -714,6 +714,7 @@ def merging_cluster(dir_clustering, contigs_file):
     display_alert(text, "success")
 
 def cdhit(contigs, c, s, cdhit_file, logger):
+
     text = f"Clustering all contigs with cdhit-est.. on progress"
     display_alert(text, "secondary")
 
@@ -817,6 +818,6 @@ def samtools_index(bam_name, logger):
         at = 'danger'
     else:
         at = 'success'
-        text = f"samtools index executed successfully)"
+        text = f"samtools index executed successfully"
     logger.info(f"\t\t\tLog samtools : {process.stdout + process.stderr}")
     display_alert(text, at)
