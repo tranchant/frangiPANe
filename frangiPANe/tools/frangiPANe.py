@@ -718,20 +718,23 @@ def cdhit(contigs, c, s, cdhit_file, logger):
     text = f"Clustering all contigs with cdhit-est.. on progress"
     display_alert(text, "secondary")
 
-    cmd = f"cd-hit-est -c {c} -s {s} -i {contigs} -o {cdhit_file}  "
-
-    process = subprocess.run(cmd, shell=True, capture_output=True, text=True)
-    logger.info(f"\t\t\tcdhit cmd : {cmd}")
-
-    if process.returncode:
-        text = f"Clustering Failed.... see log file, resolve the problem and try again"
-        # print({process.stdout + process.stderr})
-        at = 'danger'
+    if check_file(cdhit_file) == True:
+        display_alert(f"File {cdhit_file} already existed", 'warning')
     else:
-        text = f"Clustering successfully done !"
-        at = 'success'
-    display_alert(text, at)
-    logger.info(f"\t\t\tscdhit log : {process.stdout + process.stderr}")
+        cmd = f"cd-hit-est -c {c} -s {s} -i {contigs} -o {cdhit_file}  "
+
+        process = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+        logger.info(f"\t\t\tcdhit cmd : {cmd}")
+
+        if process.returncode:
+            text = f"Clustering Failed.... see log file, resolve the problem and try again"
+            # print({process.stdout + process.stderr})
+            at = 'danger'
+        else:
+            text = f"Clustering successfully done !"
+            at = 'success'
+        display_alert(text, at)
+        logger.info(f"\t\t\tcdhit log : {process.stdout + process.stderr}")
 
 
 def parse_cdhit(cdhit_cluster, df_group, cdhit_csv):
@@ -743,6 +746,9 @@ def parse_cdhit(cdhit_cluster, df_group, cdhit_csv):
     sp = None
     sp_list = None
     ctg_list = None
+
+    text = f"Merging clustering information for {cdhit_cluster}..."
+    display_alert(text, "secondary")
 
     with open(cdhit_cluster, "r") as stat:
 
@@ -799,6 +805,10 @@ def parse_cdhit(cdhit_cluster, df_group, cdhit_csv):
     df_cluster.reset_index(level=0, inplace=True)
     df_cluster['ln'] = (df_cluster['sp_list'].str.count(',') + 1)
     df_cluster.to_csv(cdhit_csv, index=False)
+
+    at = 'success'
+    text = f"Compiling successfully done. See {cdhit_csv}"
+    display_alert(text, at)
 
     return df_cluster
 
