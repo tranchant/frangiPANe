@@ -937,7 +937,7 @@ def parse_anchoring(ctg_fasta, panrefposi_file, pass_file, nopass_file, length, 
     stat_dict['uniq_pass'] = filtered_ctgs_nb
 
     #print("\n------------ FILTERED CONTIGS : ", filtered_ctgs_nb, ", ", round(filtered_ctgs_nb / nb_tot_ctgs * 100, 2),
-          "% of all contigs")
+    #      "% of all contigs")
 
     #################### SAVE FILTERED CONTIGS INTO A FILE
     df_thebest = pd.concat([df_uniq_anc[one3_bool & ~(nan_bool2) & (df_uniq_anc.END_CHR_sd < length)][col_toprint],
