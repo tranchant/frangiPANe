@@ -831,3 +831,39 @@ def samtools_index(bam_name, logger):
         text = f"samtools index executed successfully"
     logger.info(f"\t\t\tLog samtools : {process.stdout + process.stderr}")
     display_alert(text, at)
+
+
+def generating_panref(ref_fasta, ctg_fasta, panref_fasta, logger):
+
+    filenames = [ref_fasta, ctg_fasta]
+
+    with open(panref_fasta, 'w') as outfile:
+        for fname in filenames:
+            with open(fname) as infile:
+                for line in infile:
+                    outfile.write(line)
+
+    logger.info(f"\t\t\tgenerating panref fasta : {panref_fasta}")
+    display_alert(f"Panreference file successfully created : {panref_fasta}", "success")
+    index_reference_genome(panref_fasta, logger)
+
+def anchoring(output_panrefmapping_dir, panrefposi_file, logger):
+
+    logger.info(f"ANCHORING OF CONTIGS ON REFERENCE :")
+    logger.info(f"\t\tWorkig directory : {output_panrefmapping_dir}")
+
+    text = f"Anchoring indexing..."
+    display_alert(text, "secondary")
+
+    cmd = f'tools/parseBamv7.py -b {output_panrefmapping_dir} -d 15 -o {panrefposi_file}'
+    process = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+    logger.info(f"\t\t\placement cmd : {cmd}")
+
+    if process.returncode:
+        text = f"Failed execution.... see log file, resolve the problem and try again"
+        at = 'danger'
+    else:
+        at = 'success'
+        text = f"script executed successfully"
+    logger.info(f"\t\t\tLog : {process.stdout + process.stderr}")
+    display_alert(text, at)
