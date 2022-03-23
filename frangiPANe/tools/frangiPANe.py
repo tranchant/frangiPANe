@@ -861,7 +861,7 @@ def anchoring(output_panrefmapping_dir, panrefposi_file, depth, logger):
     text = f"Anchoring indexing..."
     display_alert(text, "secondary")
 
-    cmd = f'tools/parseBamv7.py -b {output_panrefmapping_dir} -d depth -o {panrefposi_file}'
+    cmd = f'tools/parseBamv7.py -b {output_panrefmapping_dir} -d {depth} -o {panrefposi_file}'
     process = subprocess.run(cmd, shell=True, capture_output=True, text=True)
     logger.info(f"\t\t\placement cmd : {cmd}")
 
