@@ -874,4 +874,82 @@ def anchoring(output_panrefmapping_dir, panrefposi_file, depth, logger):
     logger.info(f"\t\t\tLog : {process.stdout + process.stderr}")
     display_alert(text, at)
 
-#def parse_anchoring()
+
+def parse_anchoring(ctg_fasta, panrefposi_file, pass_file, nopass_file, length, logger):
+
+    df_anc = pd.read_csv(panrefposi_file, index_col=False, sep=";")
+    stat_dict = { }
+
+    # Columns To print
+    col_toprint = ['CTG_name', 'CTG_len', 'CHR_name', 'ANCHORING_TAG', 'SAMPLE', 'SAMPLE_list', 'TOT_Hit', 'START_Hit',
+                   'START_CHR_posi_sd', 'START_CHR_Min', 'END_Hit', 'END_CHR_posi_sd', 'END_CHR_Max', 'Chr_Ln']
+
+    # Contigs number total
+    #nb_tot_ctgs = int(get_seq_nb(ctg_fasta))
+
+    ######################### STATS ON CTGS PLACED JUST ON A SINGLE CHR
+    ### ALL CTGS PLACED (with redondant ctgs)
+    ctgs_anchored = df_anc.CTG_name.nunique(dropna=True)
+    stat_dict['contigs_anchored'] = ctgs_anchored
+
+    #print("------------ Number of Contigs anchored : ", ctgs_anchored, ",", round(ctgs_anchored / nb_tot_ctgs * 100, 2),"% of all ctgs")
+
+    ### JUST ATGS PLACE ON A SINGLE CHR
+    # remove toutes les rows avec plusieurs fois le meme contigs
+    df_uniq_anc = df_anc.drop_duplicates('CTG_name', keep=False)
+
+    # STATS ON CTGS PLACED JUST ONCE ON A SINGLE CHROMOSOME
+    oneside_ctgs_nb = len(df_uniq_anc[df_uniq_anc.ANCHORING_TAG == "5\'"]) + len(
+        df_uniq_anc[df_uniq_anc.ANCHORING_TAG == "3\'"])
+    botside_Ctgs_nb = len(df_uniq_anc[df_uniq_anc.ANCHORING_TAG == "5\'&3\'"])
+
+    total_ctgs_nb = oneside_ctgs_nb + botside_Ctgs_nb
+    stat_dict['uniq_anchored'] = total_ctgs_nb
+    stat_dict['uniq_anchored_mean'] = int(df_uniq_anc["CTG_len"].mean())
+    stat_dict['uniq_anchored_median'] = int(df_uniq_anc["CTG_len"].median())
+
+    # print("\n------------ Number of contigs anchored at mulitple position :", ctgs_anchored - total_ctgs_nb)
+    # print("\n------------ Number of contigs anchored at an unique position : ", total_ctgs_nb, ",",
+    #      round(total_ctgs_nb / nb_tot_ctgs * 100, 2), "% of all ctgs")
+    # print(f"mean  & median ctg length :", int(df_uniq_anc["CTG_len"].mean()), int(df_uniq_anc["CTG_len"].median()))
+
+    ######################### ADD CHR SD AS COLUMN
+    df_uniq_anc['START_CHR_sd'] = df_uniq_anc.START_CHR_posi_sd.str.extract('(.+)\(.*').fillna(0).astype(float)
+    df_uniq_anc['END_CHR_sd'] = df_uniq_anc.END_CHR_posi_sd.str.extract('(.+)\(.*').fillna(0).astype(float)
+
+    #### ################## FILTER CTGS PLACED UNIQUELY ON ONE CHR
+    filtered_ctgs_nb = 0
+
+    #################### FILTERING Ctgs 5&3
+    both_bool = (df_uniq_anc.ANCHORING_TAG == "5\'&3\'")
+    nan_bool1 = (df_uniq_anc.START_CHR_sd == -9999.0)
+    nan_bool2 = (df_uniq_anc.END_CHR_sd == -9999.0)
+    filtered_ctgs_nb = df_uniq_anc[(both_bool) & ((df_uniq_anc.START_CHR_sd < length & ~nan_bool1) | (
+                (df_uniq_anc.END_CHR_sd < length) & ~nan_bool2))].CTG_name.count()
+
+    ################### FILTERINg 5 or 3
+    one5_bool = (df_uniq_anc.ANCHORING_TAG == "5\'")
+    one3_bool = (df_uniq_anc.ANCHORING_TAG == "3\'")
+
+    filtered_ctgs_nb += df_uniq_anc[one3_bool & ~(nan_bool2) & (df_uniq_anc.END_CHR_sd < length)].CTG_name.count() + \
+                        df_uniq_anc[one5_bool & ~(nan_bool1) & (df_uniq_anc.START_CHR_sd < length)].CTG_name.count()
+
+    stat_dict['uniq_pass'] = filtered_ctgs_nb
+
+    #print("\n------------ FILTERED CONTIGS : ", filtered_ctgs_nb, ", ", round(filtered_ctgs_nb / nb_tot_ctgs * 100, 2),
+          "% of all contigs")
+
+    #################### SAVE FILTERED CONTIGS INTO A FILE
+    df_thebest = pd.concat([df_uniq_anc[one3_bool & ~(nan_bool2) & (df_uniq_anc.END_CHR_sd < length)][col_toprint],
+                            df_uniq_anc[one5_bool & ~(nan_bool1) & (df_uniq_anc.START_CHR_sd < length)][col_toprint],
+                            df_uniq_anc[(both_bool) & ((df_uniq_anc.START_CHR_sd < length & ~nan_bool1) | (
+                                        (df_uniq_anc.END_CHR_sd < length) & ~nan_bool2))][col_toprint]])
+    df_thebest.to_csv(pass_file, index=False)
+    #print(f"Min - Max : {df_thebest.CTG_len.min()} - {df_thebest.CTG_len.max()} \nMean, median length : {int(df_thebest.CTG_len.mean())} - {int(df_thebest.CTG_len.median())}")
+
+    ctg_list = df_thebest.CTG_name
+    df_thebad = df_anc[~(df_anc.CTG_name.isin(ctg_list))][col_toprint]
+    df_thebad.to_csv(nopass_file, index=False)
+    #print(pass_file,nopass_file)
+
+    return stat_dict
