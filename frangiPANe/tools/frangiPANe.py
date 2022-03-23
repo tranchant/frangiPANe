@@ -833,6 +833,12 @@ def samtools_index(bam_name, logger):
     display_alert(text, at)
 
 
+def get_seq_nb(fasta):
+
+    result = subprocess.run(['grep', '-c', '>', fasta], capture_output=True, text=True)
+    return (result.stdout)
+
+
 def generating_panref(ref_fasta, ctg_fasta, panref_fasta, logger):
 
     filenames = [ref_fasta, ctg_fasta]
