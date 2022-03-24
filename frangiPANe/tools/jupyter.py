@@ -28,7 +28,10 @@ from time import localtime, strftime
 
 import param
 import matplotlib.pyplot as plt
+from matplotlib.collections import BrokenBarHCollection
 import seaborn as sns
+
+import subprocess
 
 # save variables into a file
 file_load = 'frangiPANe.p'
@@ -273,7 +276,8 @@ def convert_mb(size):
     return round(size / 1000000, 2)
 
 
-def dashboard_genome(reference_genome):
+def dashboard_genome(reference_genome, output_dir):
+
     from Bio import SeqIO
 
     #  list to collect for each chromosome, chromosome size
@@ -281,22 +285,28 @@ def dashboard_genome(reference_genome):
 
     # read fasta genome reference
     FastaFile = open(reference_genome, 'r')
-
-    # read sequence by sequence
     for rec in SeqIO.parse(FastaFile, 'fasta'):
         seq_name = rec.id
         seq_len = len(rec.seq)
         # add chromosome name and size into genome list
         genome.append([seq_name, seq_len])
-
     FastaFile.close()
 
     # Create pandaframe from list
     df_genome = pd.DataFrame(genome, columns=["chr", "size", ])
-    total_genome = df_genome['size'].sum()
 
+    ### Generate ideogram file used to generate map of contigs anchored on genome
+    df_ideogram = df_genome
+    df_ideogram['start'] = 0
+    df_ideogram['end'] = df_ideogram['size'] - 1
+    df_ideogram['name'] = df_ideogram['chr']
+    df_ideogram['gieStain'] = 'gvar'
+
+    ### calculate genome size
+    total_genome = df_genome['size'].sum()
     df_genome['size'] = round(df_genome['size'].div(1000000), 2)
 
+    ### plot genome size of each chromosome
     # Create a visualization
     plt.figure(figsize=(8, 6))
     ax = sns.barplot(
@@ -313,6 +323,10 @@ def dashboard_genome(reference_genome):
     dashboard = pn.Column(dashboard_title, stat, pn.Row(ax.figure, pn.panel(df_genome)),
                           sizing_mode='stretch_both', background='WhiteSmoke').servable()
     display(dashboard)
+
+    # drop column size of df_ideogram and write the df into the ideogram file
+    df_ideogram.drop('size', 1, inplace=True)
+    df_ideogram.to_csv(os.path.join(output_dir, "ideogram.txt"), sep='\t', index=False, header=False)
 
     return total_genome
 
@@ -879,3 +893,208 @@ def dashboard_cdhit(df_cdhit):
                           sizing_mode='stretch_both', background='WhiteSmoke', width=800).servable()
     display(dashboard)
 
+
+
+
+# Here's the function that we'll call for each dataframe (once for chromosome
+# ideograms, once for genes).  The rest of this script will be prepping data
+# for input to this function
+# Source : PUT SOURCE
+def chromosome_collections(df, y_positions, height, **kwargs):
+    """
+    Yields BrokenBarHCollection of features that can be added to an Axes
+    object.
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        Must at least have columns ['chrom', 'start', 'end', 'color']. If no
+        column 'width', it will be calculated from start/end.
+    y_positions : dict
+        Keys are chromosomes, values are y-value at which to anchor the
+        BrokenBarHCollection
+    height : float
+        Height of each BrokenBarHCollection
+    Additional kwargs are passed to BrokenBarHCollection
+    """
+    del_width = False
+    if 'width' not in df.columns:
+        del_width = True
+        df['width'] = df['end'] - df['start']
+    for chrom, group in df.groupby('chrom'):
+        # print(chrom)
+        yrange = (y_positions[chrom], height)
+        xranges = group[['start', 'width']].values
+        yield BrokenBarHCollection(
+            xranges, yrange, facecolors=group['colors'], **kwargs)
+    if del_width:
+        del df['width']
+
+
+def plot_map(output_dir, bed_file):
+    ###### Fig parameters
+    chrom_height = 0.5  # Height of each ideogram
+    chrom_spacing = 0.8  # Spacing between consecutive ideograms
+    gene_height = 0.3  # Height of the gene track. Should be smaller than `chrom_spacing` in order to fit correctly
+    gene_padding = 0.1  # Padding between the top of a gene track and its corresponding ideogram
+
+    figsize = (14, 16)  # Width, height (in inches)
+
+    #####  Read ideogram.txt
+    ideo = pd.read_table(os.path.join(output_dir, "ideogram.txt"),
+                             names=['chrom', 'start', 'end', 'name', 'gieStain']
+                             )
+
+    # Add a new column for width
+    ideo['width'] = ideo.end - ideo.start
+
+    chromosome_list = ideo['chrom'].to_list()
+
+    # Keep track of the y positions for ideograms and genes for each chromosome,
+    # and the center of each ideogram (which is where we'll put the ytick labels)
+    ybase = 0
+    chrom_ybase = {}
+    gene_ybase = {}
+    chrom_centers = {}
+
+    # Iterate in reverse so that items in the beginning of `chromosome_list` will
+    # appear at the top of the plot
+    for chrom in chromosome_list[::-1]:
+        # print(chrom)
+        chrom_ybase[chrom] = ybase
+        chrom_centers[chrom] = ybase + chrom_height / 2.
+        gene_ybase[chrom] = ybase - gene_height - gene_padding
+        ybase += chrom_height + chrom_spacing
+
+    # Colors for different chromosome stains
+    color_lookup = {
+        'gneg': (1., 1., 1.),
+        'gpos25': (.6, .6, .6),
+        'gpos50': (.4, .4, .4),
+        'gpos75': (.2, .2, .2),
+        'gpos100': (0., 0., 0.),
+        'acen': 'grey',  # "steelblue", #(.8, .4, .4),
+        'gvar': '#f7dd8d',  # "steelblue", #(.8, .8, .8),
+        'stalk': '#f7dd8d'  # "lightblue", #(.9, .9, .9)}
+    }
+
+    # Add a new column for colors
+    ideo['colors'] = ideo['gieStain'].apply(lambda x: color_lookup[x])
+
+    # Same thing for genes
+    genes = pd.read_table(
+        bed_file, header=1,
+        names=['chrom', 'CTG_name', 'start', 'end'],
+        usecols=range(4))
+
+    genes["start"] = pd.to_numeric(genes["start"])
+    genes["end"] = pd.to_numeric(genes["end"])
+    genes = genes[genes.chrom.apply(lambda x: x in chromosome_list)]
+    genes['width'] = genes.end - genes.start
+    genes['colors'] = 'red'  # 2243a8'
+
+    fig = plt.figure(figsize=figsize)
+    ax = fig.add_subplot(111)
+
+    # Now all we have to do is call our function for the ideogram data...
+    # print("adding ideograms...")
+    for collection in chromosome_collections(ideo, chrom_ybase, chrom_height):
+        # print(collection)
+        ax.add_collection(collection)
+
+    # ...and the gene data
+    # print("adding genes...")
+    for collection in chromosome_collections(genes, gene_ybase, gene_height, alpha=0.5, linewidths=0):
+        ax.add_collection(collection)
+
+    # Axes tweaking
+    ax.set_facecolor('white')  ##fff2cc')
+    ax.set_yticks([chrom_centers[i] for i in chromosome_list])
+    ax.set_yticklabels(chromosome_list, fontsize=12)
+    ax.axis('tight')
+
+    panref_dir = os.path.dirname(bed_file)
+    plt.savefig(os.path.join(panref_dir, 'contigs_on_genome_map.png'))
+    plt.close(fig)
+
+
+def dashboard_anchoring(ctg_fasta, panref_keep_file, panref_bed_file, output_dir, anc_stat_dict):
+    # Contigs number total
+    nb_tot_ctgs = int(get_seq_nb(ctg_fasta))
+
+    # stats
+    # print(anc_stat_dict)
+    df_thebest = pd.read_csv(panref_keep_file, sep=",")
+
+    # print(df_thebest)
+    anc_comp = f"""### Anchoring process
+* {anc_stat_dict['contigs_anchored']} contigs anchored over the {nb_tot_ctgs} contigs analyzed 
+* {anc_stat_dict['uniq_anchored']} contigs placed at an unique position  with a sequence length mean of  {anc_stat_dict['uniq_anchored_mean']} pb
+    """
+
+    anc_desc = f"""### {anc_stat_dict['uniq_pass']} contigs pass the filter of length pb  - {round(anc_stat_dict['uniq_pass'] / nb_tot_ctgs * 100, 2)} % of all ctgs
+* min -  max length : {df_thebest.CTG_len.min()} bp - {df_thebest.CTG_len.max()}  bp
+* mean length : {int(df_thebest.CTG_len.mean())}  bp
+"""
+    # print(df_thebest.sort_values("CHR_name").head())
+    df_thebest = df_thebest.sort_values("CHR_name")
+    # print(df_thebest.head())
+
+    table_sp = f"""| Chromosome | Contigs anchored |\n|:---|:---:|\n"""
+    for key, item in df_thebest.CHR_name.value_counts().items():
+        table_sp += f"""| {key}  | {int(item)} |\n"""
+
+    #     singleton_desc = f"""### {df_cdhit[df_cdhit.ln == 1]['pb'].count()} singletons
+    # * min - max length : {df_cdhit[(df_cdhit.ln == 1)].pb.min()} bp -  {df_cdhit[(df_cdhit.ln == 1)].pb.max()} bp
+    # * mean length : {int(df_cdhit[(df_cdhit.ln == 1)].pb.mean())} bp
+    # """
+    #     cluster_desc = f"""### {df_cdhit[(df_cdhit.ln > 1)]['index'].count()} clusters
+    # * min - max length : {df_cdhit[(df_cdhit.ln > 1)].pb.min()} bp - {df_cdhit[(df_cdhit.ln > 1)].pb.max()} bp
+    # * mean length : {int(df_cdhit[(df_cdhit.ln > 1)].pb.mean())}
+    # * from {df_cdhit[(df_cdhit.ln > 1)].ln.min()} to  {df_cdhit[(df_cdhit.ln > 1)].ln.max()}
+    # * with ~ {int(df_cdhit[(df_cdhit.ln > 1)].ln.mean())} sequences
+    # """
+
+    # plt.figure(figsize=(17, 6))
+    plt.figure(figsize=(10, 5))
+    # sns.countplot(x ='sex', data = df)
+    nb = sns.countplot(x=df_thebest.CHR_name, palette="hls")
+    nb.set(xlabel="chromosome", ylabel="Number of contigs anchored")
+    nb.set_title("Distribution of contigs by chromosome ")
+    plt.close()
+
+    #     plt.figure(figsize=(10, 5))
+    #     size = sns.histplot(data=df_cdhit[(df_cdhit.pb < 3000)], x='pb')
+    #     size.set(ylabel="Sequence number", xlabel='Length')
+    #     size.set_title("Distribution of sequence length")
+    #     plt.close()
+
+    #     # plt.figure(figsize=(17, 6))
+    #     # ax = plt.gca()
+    #     plt.figure(figsize=(10, 5))
+    #     sc = sns.scatterplot(x='pb', y='ln', data=df_cdhit, palette='blue')
+    #     sc.set(xlabel="pb", ylabel="Cluster sequence number")
+    #     sc.set_title("ength of the contigs versus nomber of sequences within a cluster")
+    #     plt.close()
+
+    plot_map(output_dir, panref_bed_file)
+    panref_dir = os.path.dirname(panref_bed_file)
+    panref_map_file = os.path.join(panref_dir, 'contigs_on_genome_map.png')
+    dashboard_title = '# Some statistics about anchoring step'
+    dashboard = pn.Column(dashboard_title,
+                          pn.pane.Markdown(anc_comp),
+                          pn.Row(pn.pane.Markdown(anc_desc, width=1000)),
+                          pn.Row(nb.figure, pn.pane.Markdown(table_sp, width=200)),
+                          pn.pane.PNG(panref_map_file),
+                          # size.figure,
+                          # sc.figure,
+                          # pn.Row(sin_ln.figure, cl_ln.figure),
+                          # pn.panµel(filtered_smp, width=400, max_height=400, scroll=True),
+                          sizing_mode='stretch_both', background='WhiteSmoke', width=1500).servable()
+    display(dashboard)
+
+def get_seq_nb(fasta):
+
+    result = subprocess.run(['grep', '-c', '>', fasta], capture_output=True, text=True)
+    return (result.stdout)
+
+# Dashboard
