@@ -491,14 +491,14 @@ def format_stat(min, max, mean):
     return f"""<br />\n
 * min - max : {min} - {max} %
 * mean : {mean}"""
-    # return f"| over sample | {cat} | {mean} | {min}  | {max} |\n"
+
 
 
 def format_stat_int(min, max, mean):
     return f"""<br />\n
 * min - max : {int(min)} - {int(max)}
 * mean : {int(mean)}"""
-    # return f"| over sample | {cat} | {mean} | {min}  | {max} |\n"
+
 
 
 def dashboard_flagstat(stat_file, df_group):

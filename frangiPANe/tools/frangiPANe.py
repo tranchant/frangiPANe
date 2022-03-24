@@ -875,7 +875,7 @@ def anchoring(output_panrefmapping_dir, panrefposi_file, depth, logger):
     display_alert(text, at)
 
 
-def parse_anchoring(ctg_fasta, panrefposi_file, pass_file, nopass_file, length, logger):
+def parse_anchoring(panrefposi_file, pass_file, nopass_file, length, logger):
 
     df_anc = pd.read_csv(panrefposi_file, index_col=False, sep=";")
     stat_dict = { }
@@ -951,5 +951,31 @@ def parse_anchoring(ctg_fasta, panrefposi_file, pass_file, nopass_file, length, 
     df_thebad = df_anc[~(df_anc.CTG_name.isin(ctg_list))][col_toprint]
     df_thebad.to_csv(nopass_file, index=False)
     #print(pass_file,nopass_file)
+
+
+    ###################### create bed file
+    headers = ["chrName", "pos", "CTG_name"]
+
+    df_plot = df_thebest[df_thebest.ANCHORING_TAG == "5\'&3\'"]
+    karyoBoth = [df_plot.CHR_name, df_plot.START_CHR_Min, df_plot.CTG_name]
+    df_karyo = pd.concat(karyoBoth, axis=1, keys=headers)
+
+    df2_plot = df_thebest[df_thebest.ANCHORING_TAG == "5\'"]
+    karyoBoth2 = [df2_plot.CHR_name, df2_plot.START_CHR_Min, df2_plot.CTG_name]
+    df2_karyo = pd.concat(karyoBoth2, axis=1, keys=headers)
+
+    df3_plot = df_thebest[df_thebest.ANCHORING_TAG == "3\'"]
+    karyoBoth3 = [df3_plot.CHR_name, df3_plot.END_CHR_Max, df3_plot.CTG_name]
+    df3_karyo = pd.concat(karyoBoth3, axis=1, keys=headers)
+
+    frames = [df_karyo, df2_karyo, df3_karyo]
+    result = pd.concat(frames)
+
+    result['start'] = result['pos'].astype(int)
+    result['stop'] = result['start'] + 1000
+
+    result.drop('pos', 1, inplace=True)
+    result.head()
+    result.to_csv(pass_file+'.bed', sep='\t', index=False)
 
     return stat_dict
