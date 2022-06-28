@@ -8,7 +8,7 @@ USER root
 RUN apt-get update \
 &&  apt-get install -y less libz-dev software-properties-common apt-utils unzip wget build-essential cmake git-all tar gzip rsync python3-pip
 
-RUN apt pip3 install --upgrade pip
+# RUN apt pip3 install --upgrade pip
 # RUN sudo pip3 install bash_kernel
 # RUN sudo python3 -m bash_kernel.install
 
