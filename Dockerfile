@@ -11,8 +11,8 @@ RUN apt-get update \
 # RUN sudo pip3 install bash_kernel
 # RUN sudo python3 -m bash_kernel.install
 
-RUN sudo pip3 install panel \
-&& sudo pip3 install biopython
+RUN pip3 install panel \
+&& pip3 install biopython
 
 RUN curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash - \
 && apt-get install -y nodejs
