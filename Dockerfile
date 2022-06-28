@@ -5,8 +5,11 @@ LABEL author="frangiPANe"
 
 USER root
 
-RUN apt update \
-&&  apt install -y libz-dev software-properties-common apt-utils unzip wget build-essential cmake git-all tar gzip rsync
+RUN apt-get update \
+&&  apt-get install -y less libz-dev software-properties-common apt-utils unzip wget build-essential cmake git-all tar gzip rsync
+
+RUN pip install bash_kernel
+RUN python3 -m bash_kernel.install
 
 RUN pip3 install panel \
 && pip3 install biopython
@@ -24,9 +27,9 @@ RUN mkdir /data/ \
 && git clone  --recursive https://github.com/tranchant/frangiPANe.git /data/ \
 && ln -s /data/frangiPANe/ /home/jovyan/
 
-RUN apt install -y ea-utils bwa samtools
-RUN apt install -y abyss cd-hit
-RUN apt install -y ncbi-blast+ ncbi-tools-bin
+RUN apt-get install -y ea-utils bwa samtools
+RUN apt-get install -y abyss cd-hit
+RUN apt-get install -y ncbi-blast+ ncbi-tools-bin
 
 RUN conda install -c bioconda assembly-stats
 
