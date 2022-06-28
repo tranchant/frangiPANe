@@ -8,6 +8,7 @@ USER root
 RUN apt-get update \
 &&  apt-get install -y less libz-dev software-properties-common apt-utils unzip wget build-essential cmake git-all tar gzip rsync python3-pip
 
+RUN apt pip3 install --upgrade pip
 # RUN sudo pip3 install bash_kernel
 # RUN sudo python3 -m bash_kernel.install
 
@@ -23,7 +24,7 @@ ENV JUPYTER_ENABLE_LAB=yes
 
 RUN mkdir /data/ \
 && git clone  --recursive https://github.com/tranchant/frangiPANe.git /data/ \
-&& ln -s /data/frangiPANe/ /home/jovyan/
+&& ln -s /data/frangiPANe/ /home/jovyan/ && sudo chown $NB_USER /data/frangiPANe/ -R
 
 RUN apt-get install -y ea-utils bwa samtools
 RUN apt-get install -y abyss cd-hit
