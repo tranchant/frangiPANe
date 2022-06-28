@@ -28,6 +28,8 @@ RUN apt install -y ncbi-blast+ ncbi-tools-bin
 
 RUN conda install -c bioconda assembly-stats
 
+RUN mkdir /mydata/ && chown $NB_USER /mydata -R
+
 USER $NB_UID
 #  https://stackoverflow.com/questions/55362117/symlink-in-docker-container-not-supported
 
