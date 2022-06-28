@@ -32,4 +32,4 @@ USER $NB_UID
 #  https://stackoverflow.com/questions/55362117/symlink-in-docker-container-not-supported
 
 # Create a mountpoint
-VOLUME /mydata && ln -s /mydata /home/jovyan/
+VOLUME /mydata && ln -s /data/frangiPANe/ /mydata/
