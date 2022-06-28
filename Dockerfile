@@ -18,6 +18,8 @@ RUN jupyter labextension install @jupyter-widgets/jupyterlab-manager
 
 ENV JUPYTER_ENABLE_LAB=yes
 
+RUN mkdir /mydata/ && chown $NB_USER /mydata -R
+
 RUN mkdir /data/ \
 && git clone  --recursive https://github.com/tranchant/frangiPANe.git /data/ \
 && ln -s /data/frangiPANe/ /home/jovyan/
@@ -28,10 +30,9 @@ RUN apt install -y ncbi-blast+ ncbi-tools-bin
 
 RUN conda install -c bioconda assembly-stats
 
-RUN mkdir /mydata/ && chown $NB_USER /mydata -R
-
 USER $NB_UID
 #  https://stackoverflow.com/questions/55362117/symlink-in-docker-container-not-supported
+
 
 #RUN mkdir /home/jovyan/mydata
 
