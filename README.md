@@ -23,8 +23,6 @@ frangiPANe  was  developed  as  a  modular  and  interactive application  to  si
 
 ### How to use FrangiPANe ?
 
-#### from IFB cloud
-
 #### On our computer
 
 ##### Clone the git repository  
