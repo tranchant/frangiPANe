@@ -36,4 +36,4 @@ USER $NB_UID
 #RUN mkdir /home/jovyan/mydata
 
 # Create a mountpoint
-RUN mkdir /mydata
+#RUN mkdir /mydata
