@@ -31,7 +31,7 @@ RUN conda install -c bioconda assembly-stats
 USER $NB_UID
 #  https://stackoverflow.com/questions/55362117/symlink-in-docker-container-not-supported
 
-mkdir /home/jovyan
+mkdir /home/jovyan/mydata
 
 # Create a mountpoint
 #VOLUME /mydata && ln -s /data/frangiPANe/ /mydata/
