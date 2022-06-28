@@ -10,9 +10,9 @@ frangiPANe  was  developed  as  a  modular  and  interactive application  to  si
  ### Requirements
 
  * Docker : https://docs.docker.com/get-docker/
- * Python3 (v3.9.7)
+ * Python3 (v3.9.7) : https://www.python.org/
  * biopython : https://biopython.org/
- * panel
+ * panel : https://panel.holoviz.org/
 
  * abyss : https://github.com/bcgsc/abyss/blob/master/README.md
  * bwa (v. 0.7.17) : https://github.com/lh3/bwa/blob/master/README.md
