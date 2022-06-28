@@ -8,10 +8,10 @@ USER root
 RUN apt-get update \
 &&  apt-get install -y less libz-dev software-properties-common apt-utils unzip wget build-essential cmake git-all tar gzip rsync
 
-RUN sudo pip install bash_kernel
+RUN sudo pip3 install bash_kernel
 RUN sudo python3 -m bash_kernel.install
 
-RUN sudo pip install panel \
+RUN sudo pip3 install panel \
 && sudo pip3 install biopython
 
 RUN curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash - \
