@@ -36,7 +36,7 @@ git clone https://github.com/tranchant/frangiPANe.git
 After installing Docker, build the docker machine. FrangiPANe uses jupyter/datascience-notebook (more information : https://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html)
 
 ```
-docker build -t frangipane .
+sudo docker build -t frangipane .
 ```
 
 ##### Run FrangiPANe
