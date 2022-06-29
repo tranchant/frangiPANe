@@ -13,7 +13,7 @@ RUN apt-get update \
 # RUN sudo python3 -m bash_kernel.install
 
 RUN pip3 install panel \
-&& pip3 install biopython
+&& pip3 install biopython && pip3 install pysam
 
 RUN curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash - \
 && apt-get install -y nodejs
