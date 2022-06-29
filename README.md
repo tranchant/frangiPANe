@@ -41,8 +41,10 @@ sudo docker build -t frangipane .
 
 ##### Run FrangiPANe
 
+* put your local directory
+
 ```
-docker run -u $(id -u) -v /local/path/2/DATA:/home/jovyan -p 10001:8888 frangipane:latest
+docker run -u $(id -u) -v /local/path/2/DATA:mydata -p 10001:8888 frangipane:latest
 ```
 
 http://127.0.0.1:10001/lab?token=e943b42cfe64a1e76bb2018f90997043cbf3b7618b442ea5
