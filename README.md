@@ -41,13 +41,14 @@ sudo docker build -t frangipane .
 
 ##### Run FrangiPANe
 
-* put your local directory
+* Launch the docker virtual machine connecting a local directory to a Docker container.
 
 ```
 docker run -u $(id -u) -v /local/path/2/DATA:mydata -p 10001:8888 frangipane:latest
 ```
 
-http://127.0.0.1:10001/lab?token=e943b42cfe64a1e76bb2018f90997043cbf3b7618b442ea5
+Around the end of the outputs, you can find the URL with a token. Open the following link : 
+http://127.0.0.1:10001/lab and enter the token to lanch jupyter lab and frangiPANe.
 
 ### Licence
 
