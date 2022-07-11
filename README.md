@@ -41,6 +41,13 @@ sudo docker build -t frangipane .
 
 ##### Run FrangiPANe
 
+* Download a dataset to test frangiPANe 
+
+```
+wget https://itrop.ird.fr/frangiPANe/data_test.tar.gz
+tar zxvf data_test.tar.gz
+```
+
 * Launch the docker virtual machine connecting a local directory to a Docker container.
 
 ```
