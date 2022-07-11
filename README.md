@@ -51,7 +51,7 @@ tar zxvf data_test.tar.gz
 * Launch the docker virtual machine with the command `docker run`. You can connect a local directory to your frangiPANe docker container by using the option -v. So, for example, specify the directory path for the decompressed directory that contains the dataset tot test frangiPANe.
 
 ```
-docker run -u $(id -u) -v /local/path/2/DATA:mydata -p 10001:8888 frangipane:latest
+docker run -u $(id -u) -v /local/path/2/DATA:/mydata -p 10001:8888 frangipane:latest
 ```
 
 Around the end of the outputs, you can find the URL with a token. Open the following link : 
