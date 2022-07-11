@@ -23,7 +23,9 @@ frangiPANe  was  developed  as  a  modular  and  interactive application  to  si
 
 ### How to use FrangiPANe ?
 
-#### On our computer
+#### On our computer (linux or mac OS)
+
+You have to install git (https://git-scm.com/) and docker (https://docs.docker.com/get-docker/) on your computer.
 
 ##### Clone the git repository  
 
@@ -55,12 +57,21 @@ docker run -u $(id -u) -v /local/path/2/DATA:/mydata -p 10001:8888 frangipane:la
 ```
 
 Around the end of the outputs, you can find the URL with a token. You can :
-* copy the url and change the port from 8888 to 10001
-* open the following link : 
+* copy the url in order to open it in your default web browser. You have to change the port from 8888 to 10001
+* or open the following link  in your your default web browser: 
 http://127.0.0.1:10001/lab and enter the token to lanch jupyter lab and frangiPANe notebook.
 
-
+* From the homepage for `jupyter notebook`, open the directory `frangiPANe` then open the jupyter book `frangiPANe.ipynb` 
+ 
 <img src="frangiPANe/Images/jupyter_hub_home.png" width=70% align=center>
+
+* Once the book opened, execute each notebook's cell.
+
+<img src="frangiPANe/Images/frangiPANe_home.png" width=70% align=center>
+
+Nb : If you have connected your docker machine to the local directory with the downloaded dataset as described above, you can test frangiPANe by filling out the form as described below: 
+
+<img src="frangiPANe/Images/frangiPANe_form.png" width=70% align=center>
 
 ### Licence
 
