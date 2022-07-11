@@ -57,8 +57,8 @@ docker run -u $(id -u) -v /local/path/2/DATA:/mydata -p 10001:8888 frangipane:la
 ```
 
 Around the end of the outputs, you can find the URL with a token. You can :
-* copy the url in order to open it in your default web browser. You have to change the port from 8888 to 10001
-* or open the following link  in your your default web browser: 
+* copy the url to open it in your default web browser. You have to change the port from 8888 to 10001
+* or open the following link in your your default web browser: 
 http://127.0.0.1:10001/lab and enter the token to lanch jupyter lab and frangiPANe notebook.
 
 * From the homepage for `jupyter notebook`, open the directory `frangiPANe` then open the jupyter book `frangiPANe.ipynb` 
