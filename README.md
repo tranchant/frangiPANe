@@ -54,8 +54,13 @@ tar zxvf data_test.tar.gz
 docker run -u $(id -u) -v /local/path/2/DATA:/mydata -p 10001:8888 frangipane:latest
 ```
 
-Around the end of the outputs, you can find the URL with a token. Open the following link : 
+Around the end of the outputs, you can find the URL with a token. You can :
+* copy the url and change the port from 8888 to 10001
+* open the following link : 
 http://127.0.0.1:10001/lab and enter the token to lanch jupyter lab and frangiPANe notebook.
+
+
+<img src="frangiPANe/Images/jupyter_hub_home.jpg" width=70% align=center>
 
 ### Licence
 
