@@ -60,7 +60,7 @@ Around the end of the outputs, you can find the URL with a token. You can :
 http://127.0.0.1:10001/lab and enter the token to lanch jupyter lab and frangiPANe notebook.
 
 
-<img src="frangiPANe/Images/jupyter_hub_home.jpg" width=70% align=center>
+<img src="frangiPANe/Images/jupyter_hub_home.png" width=70% align=center>
 
 ### Licence
 
