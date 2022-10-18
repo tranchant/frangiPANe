@@ -56,9 +56,10 @@ tar zxvf data_test.tar.gz
 ```
 docker run -u $(id -u) -v /local/path/2/DATA:/mydata -p 10001:8888 frangipane:latest
 ```
+> **_NOTE :_**  The command just above starts a container running a Jupyter Notebook server and exposes the server on host port 10001. The server logs appear in the terminal and include a URL to the notebook server, but with the internal container port (8888) instead of the correct host port (10001). 
 
 Around the end of the outputs, you can find the URL with a token. You can :
-* copy the url to open it in your default web browser. You have to change the port from 8888 to 10001
+* copy the url to open it in your default web browser. You have to change the port from 8888 to 10001 if you use the option `-p 10001:8888`
 * or open the following link in your your default web browser: 
 http://127.0.0.1:10001/lab and enter the token to lanch jupyter lab and frangiPANe notebook.
 
