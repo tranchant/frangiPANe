@@ -49,6 +49,7 @@ sudo docker build -t frangipane .
 wget https://itrop.ird.fr/frangiPANe/data_test.tar.gz
 tar zxvf data_test.tar.gz
 ```
+Note on disk space needed to test frangiPANe: Once the directory is unzipped, the size of the test data directory is approximately 3.4 GB and frangiPANe will generate approximately 7.6 GB of data. Thus, 11 GB of disk space is required to use frangiPANe with the downloaded dataset.
 
 * Launch the docker virtual machine with the command `docker run`. You can connect a local directory to your frangiPANe docker container by using the option -v. So, for example, specify the directory path for the decompressed directory that contains the dataset tot test frangiPANe.
 
